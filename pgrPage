@@ -1,0 +1,309 @@
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+
+                                    <asp:ListView ID="lvExpired" runat="server" OnItemDataBound="lvExpired_ItemDataBound" OnItemCommand="lvExpired_ItemCommand" ClientIDMode="AutoID">
+                                        <ItemTemplate>
+                                            <tr class='<%# Container.DisplayIndex % 2 == 0 ? "listevenrow" : "listoddrow" %>'>
+                                                <td align="left">
+                                                    <asp:CheckBox ID="chkSelectProperty" onchange="CheckUncheckAll();" runat="server" />
+                                                </td>
+                                                <td align="center">
+                                                    <%# Eval("ClientID") %>
+                                                </td>
+                                                <td align="left">
+                                                    <%# Eval("ClientName")%>
+                                                    <asp:HiddenField ID="hdnClientMasterId" runat="server" Value='<%# Eval("linktoClientMasterId")%>' />
+                                                </td>
+                                                <td align="center">
+                                                    <%# Eval("Name")%>
+                                                </td>
+                                                <td align="center">
+                                                    <%# Eval("CityName")%>
+                                                </td>
+                                                <td align="center">
+                                                    <%# Eval("StateName")%>
+                                                </td>
+                                                <td align="center">
+                                                    <%# Eval("CountryName")%>
+                                                </td>
+                                                <td align="center">
+                                                    <asp:Label ID="lblExpiryDate" runat="server" Text='<%# Library.Globals.ConvertDateTimeToString(Convert.ToDateTime(Eval("DueDate")), Library.DateTimeFormats.Date)%>'></asp:Label>
+                                                </td>
+                                                <td align="center">
+                                                    <asp:Label ID="lblPaidUnpaid" runat="server"></asp:Label>
+                                                    <br />
+                                                    <asp:LinkButton ID="lbtnPay" runat="server" Text="Pay" CommandArgument='<%# Eval("linktoClientMasterId")%>' CommandName="Pay"></asp:LinkButton>
+                                                </td>
+                                                <td align="center" colspan="3">
+                                                    <asp:HyperLink ID="hplnkEdit" runat="server" Text="Edit" Style="padding: 0 3px;"></asp:HyperLink>
+                                                    <asp:LinkButton ID="lbtnDownload" runat="server" Text="Download" CommandName="Download" Style="padding: 0 3px;"></asp:LinkButton>
+                                                    <br />
+                                                    <asp:HyperLink ID="hypView" runat="server" Text="View" Style="padding: 0 3px;"></asp:HyperLink>
+                                                    <asp:HyperLink ID="hypSendMailFax" runat="server" Text="Send Mail/Fax"></asp:HyperLink>
+                                                </td>
+
+                                            </tr>
+                                            <tr style="display: none;">
+                                                <td colspan="11">
+                                                    <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                                                        <tr>
+                                                            <td align="center" colspan="2">
+                                                                <asp:ListView ID="lvAll" runat="server" OnItemDataBound="lvAll_ItemDataBound"
+                                                                    ClientIDMode="AutoID">
+                                                                    <LayoutTemplate>
+                                                                        <table id="itemPlaceholderContainer" runat="server" border="0" cellpadding="0" cellspacing="0"
+                                                                            width="100%" class="listtable">
+                                                                            <tr class="listheader">
+                                                                                <th>Item
+                                                                                </th>
+                                                                                <th>Purchased Quantity
+                                                                                </th>
+                                                                                <th>Base Rate
+                                                                                </th>
+                                                                                <th>Per Quantity Rate
+                                                                                </th>
+                                                                                <th>Amount
+                                                                                </th>
+                                                                            </tr>
+                                                                            <tr id="itemPlaceholder" runat="server">
+                                                                            </tr>
+                                                                        </table>
+                                                                    </LayoutTemplate>
+                                                                    <ItemTemplate>
+                                                                        <tr class='<%# Container.DisplayIndex % 2 == 0 ? "listevenrow" : "listoddrow" %>'>
+                                                                            <td width="40%">
+                                                                                <asp:HiddenField ID="hdModuleTranId" runat="server" />
+                                                                                <asp:HiddenField ID="hdnName" runat="server" Value='<%#Eval("Name") %>' />
+                                                                                <asp:HiddenField ID="hdnDisplayName" runat="server" Value='<%#Eval("DisplayName") %>' />
+                                                                                <asp:HiddenField ID="hdnModuleDisplayName" runat="server" Value='<%#Eval("ModuleDisplayName") %>' />
+                                                                                <asp:HiddenField ID="hdnVersionNumber" runat="server" Value='<%#Eval("VersionNumber") %>' />
+                                                                                <asp:HiddenField ID="hdnModule" runat="server" Value='<%#Eval("Module") %>' />
+                                                                                <asp:CheckBox ID="chk" runat="server" Visible="false" ForeColor="Red" onclick='javascript:return CalculateValues(this);' />
+                                                                                <asp:Label ID="lblVersionModule" runat="server" Text='<%# Eval("DisplayName")+ "-" + Eval("VersionNumber") + ", " + Eval("ModuleDisplayName") %>'></asp:Label>
+                                                                            </td>
+                                                                            <td align="center">
+                                                                                <asp:HiddenField ID="hdnBaseQuantity" runat="server" Value='<%# Eval("pmtBaseQuantity") %>' />
+                                                                                <asp:HiddenField ID="hdnExtraQuantity" runat="server" Value='<%#Convert.ToInt32(Eval("PurchasedQuantity")) - Convert.ToInt32(Eval("pmtBaseQuantity")) %>' />
+                                                                                <asp:Label ID="lblPurchasedQuantity" runat="server" Text='<%# Eval("PurchasedQuantity") %>'></asp:Label>
+                                                                                <asp:Label ID="lblTotalQuantity" runat="server" Text='<%# Convert.ToInt32(Eval("pmtBaseQuantity")) + Convert.ToInt32(Eval("PurchasedQuantity")) %>'
+                                                                                    Visible="false"></asp:Label>
+                                                                            </td>
+                                                                            <td width="12%" align="right">
+                                                                                <asp:HiddenField ID="hdnBasePrice" runat="server" Value='<%# Eval("BaseQuantityPrice") %>' />
+                                                                                <asp:CompareValidator ID="CompareValidator1" runat="server" ControlToValidate="txtPurchasedBaseQuantityPrice"
+                                                                                    ErrorMessage="Invalid Purchased Base Quantity Price." ToolTip="Invalid Purchased Base Quantity Price."
+                                                                                    SetFocusOnError="true" Display="Dynamic" Text="*" Operator="DataTypeCheck" Type="Double"></asp:CompareValidator>
+                                                                                <asp:RequiredFieldValidator ID="rfvPurchasedBaseQuantityPrice" runat="server" ControlToValidate="txtPurchasedBaseQuantityPrice"
+                                                                                    ErrorMessage="Please enter Purchased Base Quantity Price." ToolTip="Please enter Purchased Base Quantity Price."
+                                                                                    SetFocusOnError="true" Display="Dynamic" Text="*"></asp:RequiredFieldValidator>
+                                                                                <asp:TextBox ID="txtPurchasedBaseQuantityPrice" runat="server" SkinID="RightTextBox"
+                                                                                    Text='<%# Eval("BaseQuantityPrice") %>' Width="70" onchange='javascript:return CalculateValues(this);'></asp:TextBox>
+                                                                            </td>
+                                                                            <td width="12%" align="right">
+                                                                                <asp:HiddenField ID="hdnPerQuantityPrice" runat="server" Value='<%# Eval("PerQuantityPrice") %>' />
+                                                                                <asp:CompareValidator ID="CompareValidator2" runat="server" ControlToValidate="txtPurchasedPerQuantityPrice"
+                                                                                    ErrorMessage="Invalid Purchased Per Quantity Price." ToolTip="Invalid Purchased Per Quantity Price."
+                                                                                    SetFocusOnError="true" Display="Dynamic" Text="*" Operator="DataTypeCheck" Type="Double"></asp:CompareValidator>
+                                                                                <asp:RequiredFieldValidator ID="RequiredFieldValidator1" runat="server" ControlToValidate="txtPurchasedPerQuantityPrice"
+                                                                                    ErrorMessage="Please enter Purchased Per Quantity Price." ToolTip="Please enter Purchased Per Quantity Price."
+                                                                                    SetFocusOnError="true" Display="Dynamic" Text="*"></asp:RequiredFieldValidator>
+                                                                                <asp:TextBox ID="txtPurchasedPerQuantityPrice" runat="server" SkinID="RightTextBox"
+                                                                                    Text='<%# Eval("PerQuantityPrice") %>' Width="70" onchange='javascript:return CalculateValues(this);'></asp:TextBox>
+                                                                            </td>
+                                                                            <td width="5%" align="right">
+                                                                                <asp:HiddenField ID="hdnAmount" runat="server" Value='<%#Convert.ToDecimal((Convert.ToInt32(Eval("pmtBaseQuantity")) * Convert.ToDecimal(Eval("BaseQuantityPrice"))) + (((Convert.ToInt32(Eval("PurchasedQuantity")))-(Convert.ToInt32(Eval("pmtBaseQuantity")))) * Convert.ToDecimal(Eval("PerQuantityPrice"))))>400?400:(Convert.ToInt32(Eval("pmtBaseQuantity")) * Convert.ToDecimal(Eval("BaseQuantityPrice"))) + (((Convert.ToInt32(Eval("PurchasedQuantity")))-(Convert.ToInt32(Eval("pmtBaseQuantity")))) * Convert.ToDecimal(Eval("PerQuantityPrice")))%>' />
+                                                                                <asp:TextBox ID="txtAmount" runat="server" Width="70" SkinID="RightTextBox" ReadOnly="false"
+                                                                                    onchange='javascript:return CalculateAmount();' Text='<%#Convert.ToDecimal((Convert.ToInt32(Eval("pmtBaseQuantity")) * Convert.ToDecimal(Eval("BaseQuantityPrice"))) + (((Convert.ToInt32(Eval("PurchasedQuantity")))-(Convert.ToInt32(Eval("pmtBaseQuantity")))) * Convert.ToDecimal(Eval("PerQuantityPrice"))))>400?400:(Convert.ToInt32(Eval("pmtBaseQuantity")) * Convert.ToDecimal(Eval("BaseQuantityPrice"))) + (((Convert.ToInt32(Eval("PurchasedQuantity")))-(Convert.ToInt32(Eval("pmtBaseQuantity")))) * Convert.ToDecimal(Eval("PerQuantityPrice")))%>'></asp:TextBox>
+                                                                                <asp:HiddenField ID="hdnExtraModule" runat="server" />
+                                                                            </td>
+                                                                        </tr>
+                                                                    </ItemTemplate>
+                                                                    <EmptyDataTemplate>
+                                                                        <table cellpadding="2" cellspacing="0" border="0" width="100%">
+                                                                            <tr>
+                                                                                <td align="center">
+                                                                                    <div class="messagecurved">
+                                                                                        <%= Library.Messages.RecordNotFoundMessage %>
+                                                                                    </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                        </table>
+                                                                    </EmptyDataTemplate>
+                                                                </asp:ListView>
+                                                            </td>
+                                                        </tr>
+
+                                                    </table>
+                                                    <asp:TextBox ID="txtDate" runat="server"></asp:TextBox>
+                                                    <asp:TextBox ID="txtFromDate" runat="server"></asp:TextBox>
+                                                    <asp:TextBox ID="txtDueDate" runat="server"></asp:TextBox>
+                                                    <asp:DropDownList ID="ddlType" runat="server">
+                                                        <asp:ListItem Text="- SELECT -" Value="-1"></asp:ListItem>
+                                                        <asp:ListItem Text="Full " Value="1"></asp:ListItem>
+                                                        <asp:ListItem Text="Only Amount " Value="2" Selected="True"></asp:ListItem>
+                                                    </asp:DropDownList>
+                                                    <asp:TextBox ID="txtComment" runat="server" Width="570px"></asp:TextBox>
+                                                    <asp:TextBox ID="txtSubTotal" runat="server" Width="90%" SkinID="RightTextBox"></asp:TextBox>
+                                                    <asp:TextBox ID="txtTotalAmount" runat="server" Width="90%" SkinID="RightTextBox"></asp:TextBox>
+                                                </td>
+                                            </tr>
+                                        </ItemTemplate>
+                                        <EmptyDataTemplate>
+                                            <div class="messagecurved">
+                                                <table cellpadding="2" cellspacing="0" border="0" width="100%">
+                                                    <tr>
+                                                        <td align="center">
+                                                            <%= Library.Messages.RecordNotFoundMessage %>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </EmptyDataTemplate>
+                                        <LayoutTemplate>
+                                            <table id="itemPlaceholderContainer" border="0" width="100%" cellpadding="0" cellspacing="0"
+                                                class="listtable">
+                                                <tr class="listheader">
+                                                    <th align="left">
+                                                        <asp:CheckBox ID="chkSelectAll" onchange="CheckAll();" runat="server" />
+                                                    </th>
+                                                    <th align="left">Client ID
+                                                    </th>
+                                                    <th align="left">Hotel Name
+                                                    </th>
+                                                    <th align="center">
+                                                    </th>
+                                                    <th align="center">City
+                                                    </th>
+                                                    <th align="center">State
+                                                    </th>
+                                                    <th align="center">Country
+                                                    </th>
+                                                    <th align="center">Expiry Date
+                                                    </th>
+                                                    <th align="center">Paid / Unpaid
+                                                    </th>
+                                                    <th align="center" colspan="3">Operations
+                                                    </th>
+                                                </tr>
+                                                <tr id="itemPlaceHolder" runat="server">
+                                                </tr>
+                                            </table>
+                                        </LayoutTemplate>
+                                    </asp:ListView>
+
+                                    <tr>
+                                        <td align="center" style="margin-left: 40px">
+                                            <div class="verticalspacetrdouble">
+                                            </div>
+                                            <cc1:Pager ID="pgrExpired" runat="server" FirstButtonCssClass="pagebutton" PreviousButtonCssClass="pagebutton"
+                                                NextButtonCssClass="pagebutton" LastButtonCssClass="pagebutton" CurrentPageButtonCssClass="pagebuttonselected"
+                                                OtherPagesButtonCssClass="pagebutton" OnPagerCommand="pgrExpired_PagerCommand"
+                                                Visible="false" />
+                                        </td>
+                                    </tr>
+                                </table>
+                                
+                                
+                                
+Code Site:-
+protected void lvExpired_ItemDataBound(object sender, ListViewItemEventArgs e)
+        {
+            try
+            {
+                if (e.Item.ItemType == ListViewItemType.DataItem)
+                {
+                    HyperLink hypView = (HyperLink)e.Item.FindControl("hypView");
+                }
+            }
+        }
+        
+        protected void lvExpired_ItemCommand(object sender, ListViewCommandEventArgs e)
+        {
+            try
+            {
+                Globals.CheckUserRight(UserRights.Download_AMC);
+                if (e.CommandName.Equals("Download", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    Response.ContentType = Path.GetExtension(e.CommandArgument.ToString());
+                    Response.AddHeader("Content-Disposition", "attachment; filename=\"" + e.CommandArgument.ToString() + "\""); /// IMP : FileName start with " and end with "
+                    Response.WriteFile(ConfigurationManager.AppSettings["InvoiceSavePath"] + e.CommandArgument.ToString());
+                    Response.End();
+                }
+                else if (e.CommandName.Equals("Pay", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    Response.Redirect("test.aspx?CMasterID=" + e.CommandArgument.ToString());
+                }
+            }
+            catch (System.Threading.ThreadAbortException te)
+            {
+            }
+            catch (Exception ex)
+            {
+                Globals.SaveError(ex);
+            }
+        }
+        #endregion
+             protected void Page_Load(object sender, EventArgs e)
+        {
+            try
+            {
+                Globals.CheckUserSession();
+                if (!IsPostBack)
+                {
+                 pgrExpired.PageSize = 100;
+                 GetMethod();
+                 }
+            }
+            catch (System.Threading.ThreadAbortException)
+            {
+            }
+            catch (Exception ex)
+            {
+            }
+        }       
+        
+     private void GetMethod()
+        {
+            try
+            {
+                int TotalRecords;
+              //  string Name = Convert.ToString(ViewState["Name"]);
+                bool? IsActive = null;
+              //  if (ViewState["IsActive"] != null)
+              //  {
+              //      IsActive = Convert.ToBoolean(ViewState["IsActive"]);
+              //  }
+                List<DAL> lstDAL = DAL.SelectAll(pgr.StartRowIndex, pgr.PageSize, out TotalRecords, Name, IsActive);
+                pgr.TotalRowCount = TotalRecords;
+                if (lv == null)
+                {
+                    Messages.ShowMessage(Messages.SelectAllFailedMessage, Messages.MessageTypes.Error);
+                    return;
+                }
+                lv.DataSource = lstMasterDAL;
+                lv.DataBind();
+                if (lstMasterDAL.Count == 0)
+                {
+                    lblTotalRecords.Text = string.Empty;
+                }
+                else
+                {
+                    int intEndIndex = pgr.TotalRowCount < (pgr.StartRowIndex + pgr.PageSize) ? pgr.TotalRowCount : (pgr.StartRowIndex + pgr.PageSize);
+                    lblTotalRecords.Text = "[<b>" + (pgr.StartRowIndex + 1) + "</b> to <b>" + intEndIndex + "</b> of <b>" + pgr.TotalRowCount + "</b> Record(s).]";
+                }
+                if (pgr.TotalRowCount > pgr.PageSize)
+                {
+                    pgr.Visible = true;
+                }
+                else
+                {
+                    pgr.Visible = false;
+                }
+            }
+            catch (System.Threading.ThreadAbortException)
+            {
+            }
+            catch (Exception ex)
+            {
+                Globals.SaveError(ex);
+            }
+        }
