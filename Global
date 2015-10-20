@@ -1,0 +1,670 @@
+  public class Globals
+    {
+      public class PageSizes
+       {
+        public static int Min = 10;
+        public static int Mid = 25;
+        public static int List = 50;
+        public static int Max = 100;
+       }
+       
+        #region Constants
+        public const string cnstUserSession = "UserSession";
+        public const string cnstClientUserSession = "ClientUserSession";
+        public const string cnstUserRightsSession = "UserRightsSession";
+        public const string cnstMessageSession = "MessageSession";
+        private const string cnstTempSession = "TempSession";
+        private const string cnstUniqueKey = "yyyyMMdd-HHmmssff";
+        #endregion
+        
+        #region Session Methods
+        public static void CheckUserSession()
+        {
+            if (HttpContext.Current.Session[Globals.cnstUserSession] == null)
+            {
+                HttpContext.Current.Response.Redirect("~/Login.aspx");
+            }
+        }
+
+        public static bool CheckClientUserSession()
+        {
+            if (HttpContext.Current.Session[Globals.cnstClientUserSession] == null)
+            {
+                HttpContext.Current.Response.Redirect("~/Client/ClientLogin.html");
+                return false;
+            }
+            return true;
+        }
+
+        public static object GetSessionKeyValue(string key)
+        {
+            if (HttpContext.Current.Session[cnstTempSession] != null)
+            {
+                Hashtable ht = HttpContext.Current.Session[cnstTempSession] as Hashtable;
+
+                return ht[key];
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public static void SetSessionKeyValue(string key, object value)
+        {
+            if (HttpContext.Current.Session[cnstTempSession] == null)
+            {
+                HttpContext.Current.Session[cnstTempSession] = new Hashtable();
+            }
+            Hashtable ht = HttpContext.Current.Session[cnstTempSession] as Hashtable;
+            if (ht.Contains(key))
+            {
+                ht[key] = value;
+            }
+            else
+            {
+                ht.Add(key, value);
+            }
+        }
+
+        public static void RemoveSessionKeyValue(string key)
+        {
+            if (HttpContext.Current.Session[cnstTempSession] == null)
+            {
+                HttpContext.Current.Session[cnstTempSession] = new Hashtable();
+            }
+            Hashtable ht = HttpContext.Current.Session[cnstTempSession] as Hashtable;
+            if (ht.Contains(key))
+            {
+                ht.Remove(key);
+            }
+        }
+
+        public static void RemoveSession()
+        {
+            HttpContext.Current.Session.Remove(cnstTempSession);
+        }
+        #endregion
+        
+       #region UserRights
+        public static void CheckUserRight(UserRights userRight)
+        {
+            try
+            {
+                if (!GetUserRight(userRight))
+                {
+                    Messages.ShowMessage(Messages.AccessDeniedErrorMessage, Messages.MessageTypes.Error);
+                    if (HttpContext.Current.Request.UrlReferrer == null)
+                    {
+                        HttpContext.Current.Response.Redirect("~/Default.aspx");
+                    }
+                    else
+                    {
+                        HttpContext.Current.Response.Redirect(HttpContext.Current.Request.UrlReferrer.ToString());
+                    }
+                }
+            }
+            catch (System.Threading.ThreadAbortException)
+            {
+            }
+            catch (Exception ex)
+            {
+                SaveError(ex);
+            }
+        }
+
+        public static bool GetUserRight(UserRights userRight)
+        {
+            try
+            {
+                List<UserRoleRightTranDAL> lstUserRightTranDAL = (List<UserRoleRightTranDAL>)HttpContext.Current.Session[Globals.cnstUserRightsSession];
+                if (lstUserRightTranDAL != null)
+                {
+                    if (lstUserRightTranDAL.Find(r => r.linktoUserRightMasterId == Convert.ToInt16(userRight)) != null)
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            catch (System.Threading.ThreadAbortException)
+            {
+            }
+            catch (Exception ex)
+            {
+                SaveError(ex);
+            }
+            return false;
+        }
+        #endregion
+        
+        #region UniqueKeyString Methods
+        public static string GetDateTimeAsUniqueKeyString()
+        {
+            return DateTime.Now.ToString(cnstUniqueKey);
+        }
+
+        public static DateTime GetDateTimeFromUniqueKeyString(string uniqueKeyString)
+        {
+            return DateTime.ParseExact(uniqueKeyString, cnstUniqueKey, System.Globalization.DateTimeFormatInfo.InvariantInfo);
+        }
+        #endregion
+        
+        #region DateTime Methods
+        public static DateTime GetUserDateTime(DateTime dateTime)
+        {
+            DateTime dtCentralDateTime = dateTime;
+            if (HttpContext.Current.Session[cnstUserSession] != null)
+            {
+                if (((User)HttpContext.Current.Session[cnstUserSession]).UserTimeZoneOffset != 0)
+                {
+                    dtCentralDateTime = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(dateTime, "India Standard Time", "Greenwich Standard Time");
+                    dtCentralDateTime = dtCentralDateTime.AddMinutes((((User)HttpContext.Current.Session[cnstUserSession]).UserTimeZoneOffset * -1));
+                }
+            }
+            return dtCentralDateTime;
+        }
+
+        public static string ConvertDateTimeToString(DateTime dateTime, DateTimeFormats dateTimeFormat)
+        {
+            if (dateTime == new DateTime())
+            {
+                return null;
+            }
+
+            switch (dateTimeFormat)
+            {
+                case DateTimeFormats.Date:
+                    //if (HttpContext.Current.Session[cnstUserSession] != null)
+                    //{
+                    //    return GetUserDateTime(dateTime).ToString(((User)HttpContext.Current.Session[cnstUserSession]).DateFormat);
+                    //}
+                    //else
+                    //{
+                    return dateTime.ToString("MM/dd/yyyy");
+                //}
+                case DateTimeFormats.Time:
+                    //if (HttpContext.Current.Session[cnstUserSession] != null)
+                    //{
+                    //    return GetUserDateTime(dateTime).ToString(((User)HttpContext.Current.Session[cnstUserSession]).TimeFormat);
+                    //}
+                    //else
+                    //{
+                    return dateTime.ToString("hh:mm:ss tt");
+                //}
+                case DateTimeFormats.DateTime:
+                    //if (HttpContext.Current.Session[cnstUserSession] != null)
+                    //{
+                    //    return GetUserDateTime(dateTime).ToString(((User)HttpContext.Current.Session[cnstUserSession]).DateTimeFormat);
+                    //}
+                    //else
+                    //{
+                    return dateTime.ToString("MM/dd/yyyy hh:mm:ss tt");
+                //}
+                default:
+                    return string.Empty;
+            }
+        }
+
+        public static DateTime ConvertStringToDateTime(string dateTime)
+        {
+            return DateTime.ParseExact(dateTime, "MM/dd/yyyy", System.Globalization.DateTimeFormatInfo.InvariantInfo);
+        }
+        #endregion
+        
+        #region GetTime By TimeZone
+        public static string GetCustomerCurrentTimeByTimeZone(string sTimeZoneId)
+        {
+            string sTime;
+            DateTime dt = DateTime.Now;
+            sTime = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(dt, TimeZoneInfo.Local.Id, sTimeZoneId).ToString("MM/dd/yyyy hh:mm tt");
+            return sTime;
+        }
+        #endregion
+        
+        #region SaveError Methods
+        public static void SaveError(Exception ex)
+        {
+            SaveError(ex, null);
+        }
+
+        public static void SaveError(Exception ex, string description)
+        {
+            try
+            {
+                ErrorLogDAL objErrorLogDAL = new ErrorLogDAL();
+                objErrorLogDAL.ErrorDateTime = DateTime.Now;
+                objErrorLogDAL.ErrorMessage = ex.Message;
+                objErrorLogDAL.ErrorStackTrace = ex.StackTrace;
+                objErrorLogDAL.ErrorDescription = description;
+                objErrorLogDAL.InsertErrorLog();
+            }
+            catch
+            {
+                try
+                {
+                    string strErrorFolderPath = System.Configuration.ConfigurationManager.AppSettings["SiteRootPath"] + System.Configuration.ConfigurationManager.AppSettings["ErrorFolderPath"];
+                    if (!Directory.Exists(strErrorFolderPath))
+                    {
+                        Directory.CreateDirectory(strErrorFolderPath);
+                    }
+                    StringBuilder sbErrorText = new StringBuilder();
+                    sbErrorText.AppendLine("Error DateTime  : " + DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss tt"));
+                    sbErrorText.AppendLine("Message         : " + ex.Message);
+                    sbErrorText.AppendLine("StackTrace      : " + ex.StackTrace);
+                    sbErrorText.AppendLine("Message         : " + description);
+                    sbErrorText.AppendLine(string.Empty.PadLeft(100, '-'));
+                    string strErrorFilePath = strErrorFolderPath + "Errors.log";
+                    File.AppendAllText(strErrorFilePath, sbErrorText.ToString());
+                }
+                catch
+                {
+                }
+            }
+
+            if (HttpContext.Current.Request.Url.AbsolutePath.ToLower().Contains("login.aspx") || HttpContext.Current.Request.Url.AbsolutePath.ToLower().Contains("default.aspx") || HttpContext.Current.Request.Url.AbsolutePath.ToLower().Contains("errorlog.aspx"))
+            {
+                HttpContext.Current.Response.Redirect("~/Error.aspx");
+            }
+            else
+            {
+                Messages.ShowMessage(Messages.CriticalErrorMessage, Messages.MessageTypes.Error);
+                HttpContext.Current.Response.Redirect("~/default.aspx");
+            }
+        }
+
+        public static void SaveClientError(Exception ex, string description = null)
+        {
+            try
+            {
+                ErrorLogDAL objErrorLogDAL = new ErrorLogDAL();
+                objErrorLogDAL.ErrorDateTime = DateTime.Now;
+                objErrorLogDAL.ErrorMessage = ex.Message;
+                objErrorLogDAL.ErrorStackTrace = ex.StackTrace;
+                objErrorLogDAL.ErrorDescription = description;
+                objErrorLogDAL.InsertErrorLog();
+            }
+            catch
+            {
+                try
+                {
+                    string strErrorFolderPath = System.Configuration.ConfigurationManager.AppSettings["SiteRootPath"] + System.Configuration.ConfigurationManager.AppSettings["ErrorFolderPath"];
+                    if (!Directory.Exists(strErrorFolderPath))
+                    {
+                        Directory.CreateDirectory(strErrorFolderPath);
+                    }
+                    StringBuilder sbErrorText = new StringBuilder();
+                    sbErrorText.AppendLine("Error DateTime  : " + DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss tt"));
+                    sbErrorText.AppendLine("Message         : " + ex.Message);
+                    sbErrorText.AppendLine("StackTrace      : " + ex.StackTrace);
+                    sbErrorText.AppendLine("Message         : " + description);
+                    sbErrorText.AppendLine(string.Empty.PadLeft(100, '-'));
+                    string strErrorFilePath = strErrorFolderPath + "Errors.log";
+                    File.AppendAllText(strErrorFilePath, sbErrorText.ToString());
+                }
+                catch
+                {
+                }
+            }
+
+            if (HttpContext.Current.Request.Url.AbsolutePath.ToLower().Contains("login.aspx") || HttpContext.Current.Request.Url.AbsolutePath.ToLower().Contains("default.aspx") || HttpContext.Current.Request.Url.AbsolutePath.ToLower().Contains("errorlog.aspx"))
+            {
+                HttpContext.Current.Response.Redirect("~/Error.aspx");
+            }
+            else
+            {
+                Messages.ShowMessage(Messages.CriticalErrorMessage, Messages.MessageTypes.Error);
+                HttpContext.Current.Response.Redirect("~/Client/default.aspx");
+            }
+        }
+
+        public static void SaveWebError(Exception ex, string description)
+        {
+            try
+            {
+                ErrorLogDAL objErrorLogDAL = new ErrorLogDAL();
+                objErrorLogDAL.ErrorDateTime = DateTime.Now;
+                objErrorLogDAL.ErrorMessage = ex.Message;
+                objErrorLogDAL.ErrorStackTrace = ex.StackTrace;
+                objErrorLogDAL.ErrorDescription = description;
+                objErrorLogDAL.InsertErrorLog();
+            }
+            catch
+            {
+                try
+                {
+                    string strErrorFolderPath = System.Configuration.ConfigurationManager.AppSettings["SiteRootPath"] + System.Configuration.ConfigurationManager.AppSettings["ErrorFolderPath"];
+                    if (!Directory.Exists(strErrorFolderPath))
+                    {
+                        Directory.CreateDirectory(strErrorFolderPath);
+                    }
+                    StringBuilder sbErrorText = new StringBuilder();
+                    sbErrorText.AppendLine("Error DateTime  : " + DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss tt"));
+                    sbErrorText.AppendLine("Message         : " + ex.Message);
+                    sbErrorText.AppendLine("StackTrace      : " + ex.StackTrace);
+                    sbErrorText.AppendLine("Message         : " + description);
+                    sbErrorText.AppendLine(string.Empty.PadLeft(100, '-'));
+                    string strErrorFilePath = strErrorFolderPath + "Errors.log";
+                    File.AppendAllText(strErrorFilePath, sbErrorText.ToString());
+                }
+                catch
+                {
+                }
+            }
+        }
+
+        public static void SaveErrorSteps(Exception ex, string description)
+        {
+            try
+            {
+                ErrorLogDAL objErrorLogDAL = new ErrorLogDAL();
+                objErrorLogDAL.ErrorDateTime = DateTime.Now;
+                objErrorLogDAL.ErrorMessage = ex.Message;
+                objErrorLogDAL.ErrorStackTrace = ex.StackTrace;
+                objErrorLogDAL.ErrorDescription = description;
+                objErrorLogDAL.InsertErrorLog();
+            }
+            catch
+            {
+            }
+        }
+
+        #endregion
+        
+        #region SendMail
+        public static bool SendMail(string strBody, string strFromEmail, string strToEmail, string strSubject)
+        {
+            return SendMail(strBody, strFromEmail, string.Empty, strToEmail, string.Empty, strSubject, string.Empty, string.Empty, string.Empty);
+        }
+
+        public static bool SendMail(string strBody, string strFromEmail, string strFromName, string strToEmail, string strToName, string strSubject, string strAttachmentPath, string strAttachmentFile, string ReplyTo)
+        {
+            try
+            {
+                string body = strBody;
+
+                if (!string.IsNullOrEmpty(strFromEmail) && !string.IsNullOrEmpty(strToEmail))
+                {
+                    //MailAddress maFrom;
+                    //if (string.IsNullOrEmpty(strFromName))
+                    //{
+                    //    maFrom = new MailAddress(strFromEmail);
+                    //}
+                    //else
+                    //{
+                    //    maFrom = new MailAddress(strFromEmail, strFromName);
+                    //}
+                    //MailAddress maTo;
+                    //if (string.IsNullOrEmpty(strToName))
+                    //{
+                    //    maTo = new MailAddress(strToEmail);
+                    //}
+                    //else
+                    //{
+                    //    maTo = new MailAddress(strToEmail, strToName);
+                    //}
+                    MailMessage email = new MailMessage(strFromEmail, strToEmail);
+
+                    // Information
+
+                    if (!string.IsNullOrEmpty(ReplyTo))
+                    {
+                        MailAddress MailReplyTo = new MailAddress(ReplyTo);
+                        email.ReplyTo = MailReplyTo;
+                    }
+                    email.Subject = strSubject;
+                    email.Body = body;
+
+
+                    AlternateView htmlView;
+                    htmlView = AlternateView.CreateAlternateViewFromString(body, null, "text/html");
+                    // Add the views
+                    email.AlternateViews.Add(htmlView);
+                    //Add Attachment
+                    if (!string.IsNullOrEmpty(strAttachmentPath) && !string.IsNullOrEmpty(strAttachmentFile) && File.Exists(strAttachmentPath + strAttachmentFile))
+                    {
+                        Attachment at = new Attachment(strAttachmentPath + strAttachmentFile);
+                        at.Name = strAttachmentFile;
+                        email.Attachments.Add(at);
+                    }
+                    string strSMTP = ConfigurationManager.AppSettings["SMTP"];
+                    // Send the message
+                    SmtpClient smtp = new SmtpClient(strSMTP); //specify the mail server address
+                    System.Net.NetworkCredential nc = new System.Net.NetworkCredential();
+                    nc.UserName = ConfigurationManager.AppSettings["SMTPUsername"];
+                    nc.Password = ConfigurationManager.AppSettings["SMTPPassword"];
+                    smtp.Credentials = nc;
+                    smtp.Port = Convert.ToInt32(ConfigurationManager.AppSettings["MailPort"]);
+                    smtp.EnableSsl = true;
+
+                    smtp.Send(email);
+                    email.Dispose();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Globals.SaveError(ex, strFromEmail + " " + strToEmail + " " + ReplyTo);
+            }
+            return false;
+        }
+
+        public static bool SendMail(string strBody, string strFromEmail, string strFromName, string strToEmail, string strToName, string strSubject, string strAttachmentPath, string strAttachmentFile, string ReplyTo, string strBccMail)
+        {
+            try
+            {
+                string body = strBody;
+
+                if (!string.IsNullOrEmpty(strFromEmail) && !string.IsNullOrEmpty(strToEmail))
+                {
+                    MailMessage email = new MailMessage(strFromEmail, strToEmail);
+                    // Information
+                    if (!string.IsNullOrEmpty(strBccMail))
+                    {
+                        email.Bcc.Add(strBccMail);
+                    }
+                    if (!string.IsNullOrEmpty(ReplyTo))
+                    {
+                        MailAddress MailReplyTo = new MailAddress(ReplyTo);
+                        email.ReplyTo = MailReplyTo;
+                    }
+                    email.Subject = strSubject;
+                    email.Body = body;
+
+                    AlternateView htmlView;
+                    htmlView = AlternateView.CreateAlternateViewFromString(body, null, "text/html");
+
+                    // Add the views
+                    email.AlternateViews.Add(htmlView);
+
+                    //Add Attachment
+                    if (!string.IsNullOrEmpty(strAttachmentPath) && !string.IsNullOrEmpty(strAttachmentFile) && File.Exists(strAttachmentPath + strAttachmentFile))
+                    {
+                        Attachment at = new Attachment(strAttachmentPath + strAttachmentFile);
+                        at.Name = strAttachmentFile;
+                        email.Attachments.Add(at);
+                    }
+
+                    string strSMTP = ConfigurationManager.AppSettings["SMTP"];
+
+                    // Send the message
+                    SmtpClient smtp = new SmtpClient(strSMTP); //specify the mail server address
+                    System.Net.NetworkCredential nc = new System.Net.NetworkCredential();
+                    nc.UserName = ConfigurationManager.AppSettings["SMTPUsername"];
+                    nc.Password = ConfigurationManager.AppSettings["SMTPPassword"];
+                    smtp.Credentials = nc;
+                    smtp.Port = Convert.ToInt32(ConfigurationManager.AppSettings["MailPort"]);
+                    smtp.EnableSsl = true;
+
+                    smtp.Send(email);
+                    email.Dispose();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Globals.SaveError(ex, strFromEmail + " " + strToEmail + " " + ReplyTo);
+            }
+            return false;
+        }
+
+        public static bool SendMailCredential(string strBody, string strFrom, string strTo, string strSubject)
+        {
+            try
+            {
+                string body = strBody;
+                if (!string.IsNullOrEmpty(strFrom) && !string.IsNullOrEmpty(strTo))
+                {
+                    MailAddress maFrom = new MailAddress(strFrom);
+                    MailAddress maTo = new MailAddress(strTo);
+                    MailMessage email = new MailMessage(maFrom, maTo);
+                    if (!string.IsNullOrEmpty(System.Configuration.ConfigurationManager.AppSettings["MailForBCC"]))
+                    {
+                        email.Bcc.Add(ConfigurationSettings.AppSettings["MailForBCC"]);
+                    }
+                    email.Subject = strSubject;
+                    email.Body = body;
+
+                    AlternateView htmlView;
+                    htmlView = AlternateView.CreateAlternateViewFromString(body, null, "text/html");
+                    email.AlternateViews.Add(htmlView);
+
+                    string strSMTP = ConfigurationManager.AppSettings["CredentialSMTP"];
+                    // Send the message
+                    SmtpClient smtp = new SmtpClient(strSMTP); //specify the mail server address
+
+                    System.Net.NetworkCredential nc = new System.Net.NetworkCredential();
+                    nc.UserName = strFrom.Trim();
+                    nc.Password = ConfigurationManager.AppSettings["MailPassword"];
+                    smtp.Credentials = nc;
+                    smtp.Port = Convert.ToInt32(ConfigurationManager.AppSettings["MailPort"]);
+                    smtp.EnableSsl = true;
+                    smtp.Send(email);
+                    email.Dispose();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Globals.SaveError(ex);
+            }
+            return false;
+        }
+
+        public static bool SendMailForOtherSites(string strBody, string strFromEmail, string strToEmail, string strSubject)
+        {
+            try
+            {
+                string body = strBody;
+
+                if (!string.IsNullOrEmpty(strFromEmail) && !string.IsNullOrEmpty(strToEmail))
+                {
+
+                    MailMessage email = new MailMessage(strFromEmail, strToEmail);
+
+                    email.Subject = strSubject;
+                    email.Body = body;
+
+                    AlternateView htmlView;
+                    htmlView = AlternateView.CreateAlternateViewFromString(body, null, "text/html");
+                    // Add the views
+                    email.AlternateViews.Add(htmlView);
+
+                    string strSMTP = ConfigurationManager.AppSettings["SMTP"];
+                    // Send the message
+                    SmtpClient smtp = new SmtpClient(strSMTP); //specify the mail server address
+
+                    System.Net.NetworkCredential nc = new System.Net.NetworkCredential();
+                    nc.UserName = ConfigurationManager.AppSettings["SMTPUsername"];
+                    nc.Password = ConfigurationManager.AppSettings["SMTPPassword"];
+                    smtp.Credentials = nc;
+                    smtp.Port = Convert.ToInt32(ConfigurationManager.AppSettings["MailPort"]);
+                    smtp.EnableSsl = true;
+
+                    smtp.Send(email);
+                    email.Dispose();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Globals.SaveError(ex, strFromEmail + " " + strToEmail + " ");
+            }
+            return false;
+        }
+        #endregion
+        
+        public class Messages
+    {
+        public string Message
+        {
+            get;
+            set;
+        }
+        public MessageTypes MessageType
+        {
+            get;
+            set;
+        }
+
+        #region Constants
+        public const string AlreadyExistsMessage = "Record already exists.";
+
+        public const string InsertSuccessMessage = "Record saved successfully.";
+        public const string UpdateSuccessMessage = "Record updated successfully.";
+        public const string DeleteSuccessMessage = "Record deleted successfully.";
+
+        public const string InsertFailedMessage = "Failed to save record.";
+        public const string UpdateFailedMessage = "Failed to update record.";
+        public const string DeleteFailedMessage = "Failed to delete record.";
+        public const string SelectFailedMessage = "Failed to get record.";
+
+        public const string InsertAllSuccessMessage = "Record(s) saved successfully.";
+        public const string UpdateAllSuccessMessage = "Record(s) updated successfully.";
+        public const string DeleteAllSuccessMessage = "Record(s) deleted successfully.";
+
+        public const string InsertAllFailedMessage = "Failed to save record(s).";
+        public const string UpdateAllFailedMessage = "Failed to update record(s).";
+        public const string DeleteAllFailedMessage = "Failed to delete record(s).";
+        public const string SelectAllFailedMessage = "Failed to get record(s).";
+
+        public const string RecordNotFoundMessage = "No record found.";
+
+        public const string CriticalErrorMessage = "The system encountered an error, Please try again later or contact your system administrator.";
+
+        public const string AccessDeniedErrorMessage = "Access Denied !!! You do not have permission for selected request, Please contact administrator.";
+        #endregion
+
+        public enum MessageTypes
+        {
+            Information,
+            Error,
+            Exclamation,
+            Success
+        }
+
+        public static void ShowMessage(string message, Messages.MessageTypes messageType)
+        {
+            Messages objMessage = new Messages();
+            objMessage.Message = message;
+            objMessage.MessageType = messageType;
+            HttpContext.Current.Session[Globals.cnstMessageSession] = objMessage;
+        }
+    }
+
+    public enum RecordStatus
+    {
+        Success = 0,
+        Error = -1,
+        AlreadyExist = -2,
+        NotExist = -3,
+        MultipleRecords = -4
+    }
+
+    public enum DateTimeFormats
+    {
+        Date,
+        Time,
+        DateTime
+    }
+    }
