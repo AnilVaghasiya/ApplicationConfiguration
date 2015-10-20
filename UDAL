@@ -1,0 +1,603 @@
+public class DAL
+    {
+    #region Properties
+        public int UserMasterId
+        {
+            get;
+            set;
+        }
+        public string LoginName
+        {
+            get;
+            set;
+        }
+        public string Password
+        {
+            get;
+            set;
+        }
+        public string FirstName
+        {
+            get;
+            set;
+        }
+        public string LastName
+        {
+            get;
+            set;
+        }
+        public string Phone1
+        {
+            get;
+            set;
+        }
+        public string Phone2
+        {
+            get;
+            set;
+        }
+        public string Address
+        {
+            get;
+            set;
+        }
+        public int linktoCountryMasterId
+        {
+            get;
+            set;
+        }
+        public int? linktoStateMasterId
+        {
+            get;
+            set;
+        }
+        public int? linktoCityMasterId
+        {
+            get;
+            set;
+        }
+        public string ZipCode
+        {
+            get;
+            set;
+        }
+        public string Email
+        {
+            get;
+            set;
+        }
+        public DateTime CreateDateTime
+        {
+            get;
+            set;
+        }
+        public DateTime? LastModifiedDateTime
+        {
+            get;
+            set;
+        }
+        public int LoginFailCount
+        {
+            get;
+            set;
+        }
+        public bool IsActive
+        {
+            get;
+            set;
+        }
+        public int linktoRoleMasterId
+        {
+            get;
+            set;
+        }
+        public string Remark
+        {
+            get;
+            set;
+        }
+        public bool IsNotifyIssue
+        {
+            get;
+            set;
+        }
+        public bool IsNotifyTask
+        {
+            get;
+            set;
+        }
+        public bool IsNotifyBySMS
+        {
+            get;
+            set;
+        }
+        public bool IsIPRestricted
+        {
+            get;
+            set;
+        }
+        public bool IsCallCenterAllowed
+        {
+            get;
+            set;
+        }
+        public string TimeZoneId
+        {
+            set;
+            get;
+        }
+        public int linktoDivisionMasterId { get; set; }
+        public string RoleName
+        {
+            get;
+            set;
+        }
+        public bool IsClient
+        {
+            get;
+            set;
+        }
+        public int? linktoClientUniqueId
+        {
+            get;
+            set;
+        }
+        public bool? IsAllowTimeModify
+        {
+            get;
+            set;
+        }
+        #endregion
+        
+        
+        #region Class Method
+        public void SetProperties(SqlDataReader sqlRed)
+        {
+            this.UserMasterId = Convert.ToInt32(sqlRed["UserMasterId"]);
+            this.LoginName = Convert.ToString(sqlRed["LoginName"]);
+            this.Password = Convert.ToString(sqlRed["Password"]);
+            this.FirstName = Convert.ToString(sqlRed["FirstName"]);
+            this.LastName = Convert.ToString(sqlRed["LastName"]);
+            this.Phone1 = Convert.ToString(sqlRed["Phone1"]);
+            this.Phone2 = Convert.ToString(sqlRed["Phone2"]);
+            this.Address = Convert.ToString(sqlRed["Address"]);
+            this.linktoCountryMasterId = Convert.ToInt32(sqlRed["linktoCountryMasterId"]);
+            if (sqlRed["linktoStateMasterId"] != DBNull.Value)
+            {
+                this.linktoStateMasterId = Convert.ToInt32(sqlRed["linktoStateMasterId"]);
+            }
+            if (sqlRed["linktoCityMasterId"] != DBNull.Value)
+            {
+                this.linktoCityMasterId = Convert.ToInt32(sqlRed["linktoCityMasterId"]);
+            }
+            this.ZipCode = Convert.ToString(sqlRed["ZipCode"]);
+            this.Email = Convert.ToString(sqlRed["Email"]);
+            this.CreateDateTime = Convert.ToDateTime(sqlRed["CreateDateTime"]);
+            if (sqlRed["LastModifiedDateTime"] != DBNull.Value)
+            {
+                this.LastModifiedDateTime = Convert.ToDateTime(sqlRed["LastModifiedDateTime"]);
+            }
+            this.LoginFailCount = Convert.ToInt32(sqlRed["LoginFailCount"]);
+            this.IsActive = Convert.ToBoolean(sqlRed["IsActive"]);
+            this.linktoRoleMasterId = Convert.ToInt32(sqlRed["linktoRoleMasterId"]);
+            this.Remark = Convert.ToString(sqlRed["Remark"]);
+            this.IsNotifyIssue = Convert.ToBoolean(sqlRed["IsNotifyIssue"]);
+            this.IsNotifyTask = Convert.ToBoolean(sqlRed["IsNotifyTask"]);
+            this.IsNotifyBySMS = Convert.ToBoolean(sqlRed["IsNotifyBySMS"]);
+            this.IsIPRestricted = Convert.ToBoolean(sqlRed["IsIPRestricted"]);
+            this.IsCallCenterAllowed = Convert.ToBoolean(sqlRed["IsCallCenterAllowed"]);
+            this.IsClient = Convert.ToBoolean(sqlRed["IsClient"]);
+            if (sqlRed["linktoClientUniqueId"] != DBNull.Value)
+            {
+                this.linktoClientUniqueId = Convert.ToInt32(sqlRed["linktoClientUniqueId"]);
+            }
+            if (sqlRed["TimeZoneId"] != DBNull.Value)
+            {
+                this.TimeZoneId = Convert.ToString(sqlRed["TimeZoneId"]);
+            }
+            this.linktoDivisionMasterId = Convert.ToInt32(sqlRed["linktoDivisionMasterId"]);
+            if (sqlRed["IsAllowTimeModify"] != DBNull.Value)
+            {
+                this.IsAllowTimeModify = Convert.ToBoolean(sqlRed["IsAllowTimeModify"]);
+            }
+      }
+
+        public static UserMasterDAL PopulateObject(SqlDataReader sqlRed)
+        {
+            UserMasterDAL objUserMaster = new UserMasterDAL();
+            objUserMaster.UserMasterId = Convert.ToInt32(sqlRed["UserMasterId"]);
+            objUserMaster.LoginName = Convert.ToString(sqlRed["LoginName"]);
+            objUserMaster.Password = Convert.ToString(sqlRed["Password"]);
+            objUserMaster.FirstName = Convert.ToString(sqlRed["FirstName"]);
+            objUserMaster.LastName = Convert.ToString(sqlRed["LastName"]);
+            objUserMaster.Phone1 = Convert.ToString(sqlRed["Phone1"]);
+            objUserMaster.Phone2 = Convert.ToString(sqlRed["Phone2"]);
+            objUserMaster.Address = Convert.ToString(sqlRed["Address"]);
+            objUserMaster.linktoCountryMasterId = Convert.ToInt32(sqlRed["linktoCountryMasterId"]);
+            if (sqlRed["linktoStateMasterId"] != DBNull.Value)
+            {
+                objUserMaster.linktoStateMasterId = Convert.ToInt32(sqlRed["linktoStateMasterId"]);
+            }
+            if (sqlRed["linktoCityMasterId"] != DBNull.Value)
+            {
+                objUserMaster.linktoCityMasterId = Convert.ToInt32(sqlRed["linktoCityMasterId"]);
+            }
+            objUserMaster.ZipCode = Convert.ToString(sqlRed["ZipCode"]);
+            objUserMaster.Email = Convert.ToString(sqlRed["Email"]);
+            objUserMaster.CreateDateTime = Convert.ToDateTime(sqlRed["CreateDateTime"]);
+            if (sqlRed["LastModifiedDateTime"] != DBNull.Value)
+            {
+                objUserMaster.LastModifiedDateTime = Convert.ToDateTime(sqlRed["LastModifiedDateTime"]);
+            }
+            objUserMaster.LoginFailCount = Convert.ToInt32(sqlRed["LoginFailCount"]);
+            objUserMaster.IsActive = Convert.ToBoolean(sqlRed["IsActive"]);
+            objUserMaster.linktoRoleMasterId = Convert.ToInt32(sqlRed["linktoRoleMasterId"]);
+            objUserMaster.Remark = Convert.ToString(sqlRed["Remark"]);
+            objUserMaster.IsNotifyIssue = Convert.ToBoolean(sqlRed["IsNotifyIssue"]);
+            objUserMaster.IsNotifyTask = Convert.ToBoolean(sqlRed["IsNotifyTask"]);
+            objUserMaster.IsNotifyBySMS = Convert.ToBoolean(sqlRed["IsNotifyBySMS"]);
+            objUserMaster.IsIPRestricted = Convert.ToBoolean(sqlRed["IsIPRestricted"]);
+            objUserMaster.IsCallCenterAllowed = Convert.ToBoolean(sqlRed["IsCallCenterAllowed"]);
+            objUserMaster.IsClient = Convert.ToBoolean(sqlRed["IsClient"]);
+            if (sqlRed["linktoClientUniqueId"] != DBNull.Value)
+            {
+                objUserMaster.linktoClientUniqueId = Convert.ToInt32(sqlRed["linktoClientUniqueId"]);
+            }
+            if (sqlRed["TimeZoneId"] != DBNull.Value)
+            {
+                objUserMaster.TimeZoneId = Convert.ToString(sqlRed["TimeZoneId"]);
+            }
+            objUserMaster.linktoDivisionMasterId = Convert.ToInt32(sqlRed["linktoDivisionMasterId"]);
+
+          if (sqlRed["IsAllowTimeModify"] != DBNull.Value)
+            {
+                objUserMaster.IsAllowTimeModify = Convert.ToBoolean(sqlRed["IsAllowTimeModify"]);
+            }
+
+            return objUserMaster;
+        }
+        #endregion
+        
+        
+        #region Select Method
+        public bool SelectUserMaster()
+        {
+            SqlConnection sqlCon = null;
+            SqlCommand sqlCom = null;
+            SqlDataReader sqlRed = null;
+            try
+            {
+                sqlCon = DataObjectFactory.CreateNewConnection();
+                sqlCom = DataObjectFactory.CreateStoredProcedureCommand("SelectUserMaster", sqlCon);
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@UserMasterId", this.UserMasterId));
+                DataObjectFactory.OpenConnection(sqlCon);
+                sqlRed = sqlCom.ExecuteReader();
+                if (sqlRed.Read())
+                {
+                    SetProperties(sqlRed);
+                    sqlRed.Close();
+                    DataObjectFactory.CloseConnection(sqlCon);
+                    return true;
+                }
+                sqlRed.Close();
+                DataObjectFactory.CloseConnection(sqlCon);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Globals.SaveError(ex);
+                return false;
+            }
+            finally
+            {
+                DataObjectFactory.DisposeDataReader(sqlRed);
+                DataObjectFactory.DisposeCommand(sqlCom);
+                DataObjectFactory.DisposeConnection(sqlCon);
+            }
+        }
+
+        public bool SelectUserMasterAuthentication()
+        {
+            SqlConnection sqlCon = null;
+            SqlCommand sqlCom = null;
+            SqlDataReader sqlRed = null;
+            try
+            {
+                sqlCon = DataObjectFactory.CreateNewConnection();
+                sqlCom = DataObjectFactory.CreateStoredProcedureCommand("SelectUserMasterAuthentication", sqlCon);
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@LoginName", this.LoginName));
+                DataObjectFactory.OpenConnection(sqlCon);
+                sqlRed = sqlCom.ExecuteReader();
+                if (sqlRed.Read())
+                {
+                    SetProperties(sqlRed);
+                    sqlRed.Close();
+                    DataObjectFactory.CloseConnection(sqlCon);
+                    return true;
+                }
+                sqlRed.Close();
+                DataObjectFactory.CloseConnection(sqlCon);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Globals.SaveError(ex);
+                return false;
+            }
+            finally
+            {
+                DataObjectFactory.DisposeDataReader(sqlRed);
+                DataObjectFactory.DisposeCommand(sqlCom);
+                DataObjectFactory.DisposeConnection(sqlCon);
+            }
+        }
+        #endregion
+        
+               public static List<UserMasterDAL> SelectAllUserMasterByRole(int startRowIndex, int pageSize, out int totalRecords, string loginName, string firstName, string lastName, bool? isActive, bool? IsClient)
+        {
+            SqlConnection sqlCon = null;
+            SqlCommand sqlCom = null;
+            SqlDataReader sqlRed = null;
+            try
+            {
+                sqlCon = DataObjectFactory.CreateNewConnection();
+                sqlCom = DataObjectFactory.CreateStoredProcedureCommand("SelectAllUserMasterByRole", sqlCon);
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@StartRowIndex", startRowIndex));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@PageSize", pageSize));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateOutputCommandParameter("@TotalRecords", System.Data.SqlDbType.Int));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@LoginName", loginName));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@FirstName", firstName));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@LastName", lastName));                
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@IsActive", isActive));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@IsClient", IsClient));
+                DataObjectFactory.OpenConnection(sqlCon);
+                sqlRed = sqlCom.ExecuteReader();
+                List<UserMasterDAL> lstUserMaster = new List<UserMasterDAL>();
+                UserMasterDAL objUserMasterDAL;
+                while (sqlRed.Read())
+                {
+                    objUserMasterDAL = PopulateObject(sqlRed);
+                    objUserMasterDAL.RoleName = Convert.ToString(sqlRed["RoleName"]);
+                    lstUserMaster.Add(objUserMasterDAL);
+                }
+                sqlRed.Close();
+                DataObjectFactory.CloseConnection(sqlCon);
+                totalRecords = Convert.ToInt32(sqlCom.Parameters["@TotalRecords"].Value);
+                return lstUserMaster;
+            }
+            catch (Exception ex)
+            {
+                Globals.SaveError(ex);
+                totalRecords = 0;
+                return null;
+            }
+            finally
+            {
+                DataObjectFactory.DisposeDataReader(sqlRed);
+                DataObjectFactory.DisposeCommand(sqlCom);
+                DataObjectFactory.DisposeConnection(sqlCon);
+            }
+        }
+                #region Insert Method
+        public RecordStatus InsertUserMaster()
+        {
+            SqlConnection sqlCon = null;
+            SqlCommand sqlCom = null;
+            try
+            {
+                sqlCon = DataObjectFactory.CreateNewConnection();
+                sqlCom = DataObjectFactory.CreateStoredProcedureCommand("InsertUserMaster", sqlCon);
+                sqlCom.Parameters.Add(DataObjectFactory.CreateOutputCommandParameter("@UserMasterId", System.Data.SqlDbType.Int));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@LoginName", this.LoginName));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@Password", this.Password));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@FirstName", this.FirstName));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@LastName", this.LastName));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@Phone1", this.Phone1));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@Phone2", this.Phone2));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@Address", this.Address));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@linktoCountryMasterId", this.linktoCountryMasterId));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@linktoStateMasterId", this.linktoStateMasterId));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@linktoCityMasterId", this.linktoCityMasterId));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@ZipCode", this.ZipCode));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@Email", this.Email));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@CreateDateTime", this.CreateDateTime));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@LastModifiedDateTime", this.LastModifiedDateTime));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@IsActive", this.IsActive));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@linktoRoleMasterId", this.linktoRoleMasterId));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@Remark", this.Remark));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@IsNotifyIssue", this.IsNotifyIssue));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@IsNotifyTask", this.IsNotifyTask));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@IsNotifyBySMS", this.IsNotifyBySMS));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@IsIPRestricted", this.IsIPRestricted));
+                
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@IsClient", this.IsClient));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@linktoClientUniqueId", this.linktoClientUniqueId));
+                                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@TimeZoneId", this.TimeZoneId));
+                
+                sqlCom.Parameters.Add(DataObjectFactory.CreateOutputCommandParameter("@status", System.Data.SqlDbType.Int));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@linktoDivisionMasterId", this.linktoDivisionMasterId));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@IsCallCenterAllowed", this.IsCallCenterAllowed));
+                DataObjectFactory.OpenConnection(sqlCon);
+                sqlCom.ExecuteNonQuery();
+                DataObjectFactory.CloseConnection(sqlCon);
+                RecordStatus rsStatus = (RecordStatus)sqlCom.Parameters["@status"].Value;
+                if (rsStatus == RecordStatus.Success || rsStatus == RecordStatus.AlreadyExist)
+                {
+                    this.UserMasterId = Convert.ToInt32(sqlCom.Parameters["@UserMasterId"].Value);
+                }
+                return rsStatus;
+            }
+            catch (Exception ex)
+            {
+                Globals.SaveError(ex);
+                return RecordStatus.Error;
+            }
+            finally
+            {
+                DataObjectFactory.DisposeCommand(sqlCom);
+                DataObjectFactory.DisposeConnection(sqlCon);
+            }
+        }
+        #endregion
+     #region Update Method
+        public RecordStatus UpdateUserMaster()
+        {
+            SqlConnection sqlCon = null;
+            SqlCommand sqlCom = null;
+            try
+            {
+                sqlCon = DataObjectFactory.CreateNewConnection();
+                sqlCom = DataObjectFactory.CreateStoredProcedureCommand("UpdateUserMaster", sqlCon);
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@UserMasterId", this.UserMasterId));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@LoginName", this.LoginName));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@FirstName", this.FirstName));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@LastName", this.LastName));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@Phone1", this.Phone1));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@Phone2", this.Phone2));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@Address", this.Address));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@linktoCountryMasterId", this.linktoCountryMasterId));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@linktoStateMasterId", this.linktoStateMasterId));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@linktoCityMasterId", this.linktoCityMasterId));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@ZipCode", this.ZipCode));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@Email", this.Email));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@LastModifiedDateTime", this.LastModifiedDateTime));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@IsActive", this.IsActive));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@linktoRoleMasterId", this.linktoRoleMasterId));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@Remark", this.Remark));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@IsNotifyIssue", this.IsNotifyIssue));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@IsNotifyTask", this.IsNotifyTask));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@IsNotifyBySMS", this.IsNotifyBySMS));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@IsIPRestricted", this.IsIPRestricted));
+                //Kashyap Start 11/10/2013
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@IsClient", this.IsClient));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@linktoClientUniqueId", this.linktoClientUniqueId));
+               sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@TimeZoneId", this.TimeZoneId));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateOutputCommandParameter("@status", System.Data.SqlDbType.Int));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@linktoDivisionMasterId", this.linktoDivisionMasterId));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@IsCallCenterAllowed", this.IsCallCenterAllowed));
+                DataObjectFactory.OpenConnection(sqlCon);
+                sqlCom.ExecuteNonQuery();
+                DataObjectFactory.CloseConnection(sqlCon);
+                return (RecordStatus)sqlCom.Parameters["@status"].Value;
+            }
+            catch (Exception ex)
+            {
+                Globals.SaveError(ex);
+                return RecordStatus.Error;
+            }
+            finally
+            {
+                DataObjectFactory.DisposeCommand(sqlCom);
+                DataObjectFactory.DisposeConnection(sqlCon);
+            }
+        }
+
+        public bool UpdateUserMasterIsActive()
+        {
+            SqlConnection sqlCon = null;
+            SqlCommand sqlCom = null;
+            try
+            {
+                sqlCon = DataObjectFactory.CreateNewConnection();
+                sqlCom = DataObjectFactory.CreateStoredProcedureCommand("UpdateUserMasterIsActive", sqlCon);
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@UserMasterId", this.UserMasterId));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@IsActive", this.IsActive));
+                DataObjectFactory.OpenConnection(sqlCon);
+                sqlCom.ExecuteNonQuery();
+                DataObjectFactory.CloseConnection(sqlCon);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Globals.SaveError(ex);
+                return false;
+            }
+            finally
+            {
+                DataObjectFactory.DisposeCommand(sqlCom);
+                DataObjectFactory.DisposeConnection(sqlCon);
+            }
+        }
+
+        public bool UpdateUserMasterLoginFailCount()
+        {
+            SqlConnection sqlCon = null;
+            SqlCommand sqlCom = null;
+            try
+            {
+                sqlCon = DataObjectFactory.CreateNewConnection();
+                sqlCom = DataObjectFactory.CreateStoredProcedureCommand("UpdateUserMasterLoginFailCount", sqlCon);
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@UserMasterId", this.UserMasterId));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@LoginFailCount", this.LoginFailCount));
+                DataObjectFactory.OpenConnection(sqlCon);
+                sqlCom.ExecuteNonQuery();
+                DataObjectFactory.CloseConnection(sqlCon);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Globals.SaveError(ex);
+                return false;
+            }
+            finally
+            {
+                DataObjectFactory.DisposeCommand(sqlCom);
+                DataObjectFactory.DisposeConnection(sqlCon);
+            }
+        }
+
+        public RecordStatus UpdatePasswordUserMaster()
+        {
+            SqlConnection sqlCon = null;
+            SqlCommand sqlCom = null;
+            try
+            {
+                sqlCon = DataObjectFactory.CreateNewConnection();
+                sqlCom = DataObjectFactory.CreateStoredProcedureCommand("UpdatePasswordUserMaster", sqlCon);
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@UserMasterId", this.UserMasterId));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@Password", this.Password));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateOutputCommandParameter("@status", System.Data.SqlDbType.Int));
+                DataObjectFactory.OpenConnection(sqlCon);
+                sqlCom.ExecuteNonQuery();
+                DataObjectFactory.CloseConnection(sqlCon);
+                return (RecordStatus)sqlCom.Parameters["@status"].Value;
+            }
+            catch (Exception ex)
+            {
+                Globals.SaveError(ex);
+                return RecordStatus.Error;
+            }
+            finally
+            {
+                DataObjectFactory.DisposeCommand(sqlCom);
+                DataObjectFactory.DisposeConnection(sqlCon);
+            }
+        }
+        public RecordStatus UpdateUserMasterIsTimeModify()
+        {
+            SqlConnection sqlCon = null;
+            SqlCommand sqlCom = null;
+            try
+            {
+                sqlCon = DataObjectFactory.CreateNewConnection();
+                sqlCom = DataObjectFactory.CreateStoredProcedureCommand("UpdateUserMasterIsTimeModify", sqlCon);
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@UserMasterId", this.UserMasterId));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateInputCommandParameter("@IsAllowTimeModify", this.IsAllowTimeModify));
+                sqlCom.Parameters.Add(DataObjectFactory.CreateOutputCommandParameter("@status", System.Data.SqlDbType.Int));
+                DataObjectFactory.OpenConnection(sqlCon);
+                sqlCom.ExecuteNonQuery();
+                DataObjectFactory.CloseConnection(sqlCon);
+                return (RecordStatus)sqlCom.Parameters["@status"].Value;
+            }
+            catch (Exception ex)
+            {
+                Globals.SaveError(ex);
+                return RecordStatus.Error;
+            }
+            finally
+            {
+                DataObjectFactory.DisposeCommand(sqlCom);
+                DataObjectFactory.DisposeConnection(sqlCon);
+            }
+        }
+    }
