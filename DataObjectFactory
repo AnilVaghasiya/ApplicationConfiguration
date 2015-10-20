@@ -1,0 +1,112 @@
+ public class DataObjectFactory
+    {
+    public static SqlConnection CreateNewConnection()
+        {
+            return new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString);
+        }
+
+        public static SqlConnection CreateNewGDSConnection()
+        {
+            return new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ASIGDSIDSConnectionString"].ConnectionString);
+        }
+
+        public static void OpenConnection(SqlConnection sqlConnection)
+        {
+            if (sqlConnection.State == ConnectionState.Closed)
+            {
+                sqlConnection.Open();
+            }
+        }
+
+        public static void CloseConnection(SqlConnection sqlConnection)
+        {
+            if (sqlConnection.State == ConnectionState.Open)
+            {
+                sqlConnection.Close();
+            }
+        }
+
+        public static void DisposeConnection(SqlConnection sqlConnection)
+        {
+            if (sqlConnection != null)
+            {
+                sqlConnection.Dispose();
+            }
+        }
+
+        public static void DisposeCommand(SqlCommand sqlCommand)
+        {
+            if (sqlCommand != null)
+            {
+                sqlCommand.Dispose();
+            }
+        }
+
+        public static void DisposeDataReader(SqlDataReader sqlDataReader)
+        {
+            if (sqlDataReader != null)
+            {
+                if (sqlDataReader.IsClosed == false)
+                {
+                    sqlDataReader.Close();
+                }
+                sqlDataReader.Dispose();
+            }
+        }
+
+        public static SqlCommand CreateStoredProcedureCommand(string storedProcedureName, SqlConnection sqlConnection)
+        {
+            SqlCommand sqlCom = new SqlCommand();
+            sqlCom.CommandType = CommandType.StoredProcedure;
+            sqlCom.CommandText = storedProcedureName;
+            sqlCom.Connection = sqlConnection;
+            return sqlCom;
+        }
+
+        public static SqlCommand CreateStoredProcedureCommand(string storedProcedureName, SqlConnection sqlConnection, SqlTransaction sqlTransaction)
+        {
+            SqlCommand sqlCom = new SqlCommand();
+            sqlCom.CommandType = CommandType.StoredProcedure;
+            sqlCom.CommandText = storedProcedureName;
+            sqlCom.Connection = sqlConnection;
+            sqlCom.Transaction = sqlTransaction;
+            return sqlCom;
+        }
+
+        public static SqlParameter CreateInputCommandParameter(string parameterName, object parameterValue)
+        {
+            SqlParameter sqlPtr = new SqlParameter();
+            sqlPtr.ParameterName = parameterName;
+            sqlPtr.Value = parameterValue;
+            sqlPtr.Direction = ParameterDirection.Input;
+            return sqlPtr;
+        }
+
+        public static SqlParameter CreateOutputCommandParameter(string parameterName, SqlDbType sqlDbType)
+        {
+            SqlParameter sqlPtr = new SqlParameter();
+            sqlPtr.ParameterName = parameterName;
+            sqlPtr.SqlDbType = sqlDbType;
+            sqlPtr.Direction = ParameterDirection.Output;
+            return sqlPtr;
+        }
+
+        public static SqlParameter CreateOutputCommandParameter(string parameterName, SqlDbType sqlDbType, int size)
+        {
+            SqlParameter sqlPtr = new SqlParameter();
+            sqlPtr.ParameterName = parameterName;
+            sqlPtr.SqlDbType = sqlDbType;
+            sqlPtr.Size = size;
+            sqlPtr.Direction = ParameterDirection.Output;
+            return sqlPtr;
+        }
+
+        public static SqlCommand CreateTextCommand(string commandText, SqlConnection sqlConnection)
+        {
+            SqlCommand sqlCom = new SqlCommand();
+            sqlCom.CommandType = CommandType.Text;
+            sqlCom.CommandText = commandText;
+            sqlCom.Connection = sqlConnection;
+            return sqlCom;
+        }
+      }
