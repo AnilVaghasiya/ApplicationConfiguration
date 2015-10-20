@@ -1,0 +1,269 @@
+    protected void Page_Load(object sender, EventArgs e)
+        {
+            try
+            {
+                if (!Page.IsPostBack)
+                {
+                    /// Start - Menu Control Fix for Chrome and Safari
+                    if (Request.UserAgent.IndexOf("AppleWebKit") > 0)
+                    {
+                        Request.Browser.Adapters.Clear();
+                    }
+                    /// End
+                    Session.Clear();
+                    if (Request.Cookies["UserCredintials"] != null)
+                    {
+                        txtLoginName.Text = Server.HtmlEncode(Request.Cookies["UserCredintials"].Values["UserName"]).ToString();
+                        txtPassword.Text = Server.HtmlEncode(Request.Cookies["UserCredintials"].Values["Password"]).ToString();
+                        hdUserTimeZone.Value = Server.HtmlEncode(Request.Cookies["UserCredintials"].Values["TimeZone"]).ToString();
+                        btnLogin_Click(btnLogin, new EventArgs());
+                    }
+                }
+            }
+            catch (System.Threading.ThreadAbortException)
+            {
+            }
+            catch (Exception ex)
+            {
+                Globals.SaveError(ex);
+            }
+        }
+
+        protected void btnLogin_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                UserMasterDAL objUserMaster = new UserMasterDAL();
+                objUserMaster.LoginName = txtLoginName.Text.Trim();
+                if (objUserMaster.SelectUserMasterAuthentication())
+                {
+                    if (objUserMaster.Password.Equals(txtPassword.Text.Trim()) && (objUserMaster.IsActive == true) && (objUserMaster.LoginFailCount < 7))
+                    {   
+                        if (!objUserMaster.IsClient)
+                        {
+                            if (objUserMaster.IsIPRestricted == true)
+                            {
+                                int TotalRecords = 0;
+                                string UserHostAddress = HttpContext.Current.Request.UserHostAddress;
+                                List<AccessIpDAL> lstIpAccess = AccessIpDAL.SelectAllAccessIp(0, 99999, out TotalRecords);
+                                lstIpAccess = lstIpAccess.FindAll(a => a.IpAddress == UserHostAddress);
+                                if (lstIpAccess != null && lstIpAccess.Count > 0)
+                                {
+                                    if (!string.IsNullOrEmpty(System.Configuration.ConfigurationManager.AppSettings["AllowedIPs"]) && objUserMaster.IsIPRestricted)
+                                    {
+                                        bool blnIsAccess = false;
+                                        string[] strAllowedIPs = System.Configuration.ConfigurationManager.AppSettings["AllowedIPs"].Split(',');
+                                        foreach (string str in strAllowedIPs)
+                                        {
+                                            if (Request.UserHostAddress.Equals(str))
+                                            {
+                                                blnIsAccess = true;
+                                                break;
+                                            }
+                                        }
+                                        if (!blnIsAccess)
+                                        {
+                                            Response.Redirect("Error.aspx?code=-1");
+                                        }
+                                    }
+
+                                    UserLogDAL objUserLog = new UserLogDAL();
+                                    objUserLog.LoginDateTime = DateTime.Now;
+                                    objUserLog.linktoUserMasterId = objUserMaster.UserMasterId;
+                                    objUserLog.IPAddress = Request.UserHostAddress;
+                                    objUserLog.Remark = "Login Successful";
+                                    RecordStatus rsStatus = objUserLog.InsertUserLog();
+                                    if (rsStatus == RecordStatus.Success)
+                                    {
+                                        if (chkRememberMe.Checked == true)
+                                        {
+                                            HttpCookie objCookie = new HttpCookie("UserCredintials");
+                                            objCookie.Values["UserName"] = txtLoginName.Text.Trim();
+                                            objCookie.Values["Password"] = txtPassword.Text.Trim();
+                                            objCookie.Values["TimeZone"] = hdUserTimeZone.Value;
+                                            objCookie.Expires = DateTime.Now.AddMonths(1);
+                                            Response.Cookies.Add(objCookie);
+                                        }
+                                        objUserMaster.LoginFailCount = 0;
+                                        objUserMaster.UpdateUserMasterLoginFailCount();
+
+                                        Session[Globals.cnstUserSession] = new User(objUserMaster.UserMasterId, Convert.ToInt32(hdUserTimeZone.Value));
+
+                                        List<UserRoleRightTranDAL> lstUserRightTranDAL = null;
+                                        if (Session[Globals.cnstUserRightsSession] == null)
+                                        {
+                                            lstUserRightTranDAL = UserRoleRightTranDAL.SelectAllUserRoleRightTran(objUserMaster.linktoRoleMasterId);
+                                            Session[Globals.cnstUserRightsSession] = lstUserRightTranDAL;
+                                        }
+
+                                        Response.Redirect("~/Default.aspx");
+                                    }
+                                    else
+                                    {
+                                        Session[Globals.cnstUserSession] = "Error Processing your Request,Please Try again!";
+                                    }
+                                }
+                                else
+                                {
+                                    lblMessage.Text = "Access Denied!";
+                                    UserLogDAL objUserLog = new UserLogDAL();
+                                    objUserLog.LoginDateTime = DateTime.Now;
+                                    objUserLog.linktoUserMasterId = objUserMaster.UserMasterId;
+                                    objUserLog.IPAddress = Request.UserHostAddress;
+                                    objUserLog.Remark = "Login Failed! No record in AccessIp table";
+                                    RecordStatus rsStatus = objUserLog.InsertUserLog();
+                                }
+                            }
+                            else
+                            {
+                                UserLogDAL objUserLog;
+                                RecordStatus rsStatus;
+                                if (!string.IsNullOrEmpty(System.Configuration.ConfigurationManager.AppSettings["AllowedIPs"]) && objUserMaster.IsIPRestricted)
+                                {
+                                    bool blnIsAccess = false;
+                                    string[] strAllowedIPs = System.Configuration.ConfigurationManager.AppSettings["AllowedIPs"].Split(',');
+                                    foreach (string str in strAllowedIPs)
+                                    {
+                                        if (Request.UserHostAddress.Equals(str))
+                                        {
+                                            blnIsAccess = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!blnIsAccess)
+                                    {                                        
+                                        objUserLog = new UserLogDAL();
+                                        objUserLog.LoginDateTime = DateTime.Now;
+                                        objUserLog.linktoUserMasterId = objUserMaster.UserMasterId;
+                                        objUserLog.IPAddress = Request.UserHostAddress;
+                                        objUserLog.Remark = "Login Failed! No IPs allowed";
+                                        rsStatus = objUserLog.InsertUserLog();
+                                        Response.Redirect("Error.aspx?code=-1");
+                                    }
+                                }
+
+                                //UserLogDAL objUserLog = new UserLogDAL();
+                                objUserLog = new UserLogDAL();
+                                objUserLog.LoginDateTime = DateTime.Now;
+                                objUserLog.linktoUserMasterId = objUserMaster.UserMasterId;
+                                objUserLog.IPAddress = Request.UserHostAddress;
+                                objUserLog.Remark = "Login Successful";
+                                rsStatus = objUserLog.InsertUserLog();
+                                if (rsStatus == RecordStatus.Success)
+                                {
+                                    if (chkRememberMe.Checked == true)
+                                    {
+                                        HttpCookie objCookie = new HttpCookie("UserCredintials");
+                                        objCookie.Values["UserName"] = txtLoginName.Text.Trim();
+                                        objCookie.Values["Password"] = txtPassword.Text.Trim();
+                                        objCookie.Values["TimeZone"] = hdUserTimeZone.Value;
+                                        objCookie.Expires = DateTime.Now.AddMonths(1);
+                                        Response.Cookies.Add(objCookie);
+                                    }
+                                    objUserMaster.LoginFailCount = 0;
+                                    objUserMaster.UpdateUserMasterLoginFailCount();
+
+                                    Session[Globals.cnstUserSession] = new User(objUserMaster.UserMasterId, Convert.ToInt32(hdUserTimeZone.Value));
+
+                                    List<UserRoleRightTranDAL> lstUserRightTranDAL = null;
+                                    if (Session[Globals.cnstUserRightsSession] == null)
+                                    {
+                                        lstUserRightTranDAL = UserRoleRightTranDAL.SelectAllUserRoleRightTran(objUserMaster.linktoRoleMasterId);
+                                        Session[Globals.cnstUserRightsSession] = lstUserRightTranDAL;
+                                    }
+
+                                    Response.Redirect("~/Default.aspx");
+                                }
+                                else
+                                {
+                                    Session[Globals.cnstUserSession] = "Error Processing your Request,Please Try again!";
+                                }
+                            }
+                        }
+                        
+                        else
+                        {
+                            UserLogDAL objUserLog = new UserLogDAL();
+                            objUserLog.LoginDateTime = DateTime.Now;
+                            objUserLog.linktoUserMasterId = objUserMaster.UserMasterId;
+                            objUserLog.IPAddress = Request.UserHostAddress;
+                            objUserLog.Remark = "Login Successful";
+                            RecordStatus rsStatus = objUserLog.InsertUserLog();
+                            if (rsStatus == RecordStatus.Success)
+                            {
+                                if (chkRememberMe.Checked == true)
+                                {
+                                    HttpCookie objCookie = new HttpCookie("UserCredintials");
+                                    objCookie.Values["UserName"] = txtLoginName.Text.Trim();
+                                    objCookie.Values["Password"] = txtPassword.Text.Trim();
+                                    objCookie.Values["TimeZone"] = hdUserTimeZone.Value;
+                                    objCookie.Expires = DateTime.Now.AddMonths(1);
+                                    Response.Cookies.Add(objCookie);
+                                }
+                                objUserMaster.LoginFailCount = 0;
+                                objUserMaster.UpdateUserMasterLoginFailCount();
+
+                                Session[Globals.cnstUserSession] = new User(objUserMaster.UserMasterId, Convert.ToInt32(hdUserTimeZone.Value));
+
+                                Globals.SetSessionKeyValue("ClientUniqueId", objUserMaster.linktoClientUniqueId);
+                                Response.Redirect("~/Client/Default.aspx");
+                            }
+                            else
+                            {
+                                Session[Globals.cnstUserSession] = "Error Processing your Request,Please Try again!";
+                            }
+                        }
+                    }
+                    else if (objUserMaster.LoginFailCount >= 7)
+                    {
+                        lblMessage.Text = "Your account is blocked. Please contact Administrator.";
+                        UserLogDAL objUserLog = new UserLogDAL();
+                        objUserLog.LoginDateTime = DateTime.Now;
+                        objUserLog.linktoUserMasterId = objUserMaster.UserMasterId;
+                        objUserLog.IPAddress = Request.UserHostAddress;
+                        objUserLog.Remark = "Login Failed! Account is blocked.";
+                        RecordStatus rsStatus = objUserLog.InsertUserLog();
+                    }
+                    else if (!objUserMaster.Password.Equals(txtPassword.Text.Trim()))
+                    {
+                        objUserMaster.LoginFailCount += 1;
+                        objUserMaster.UpdateUserMasterLoginFailCount();
+                        lblMessage.Text = "Invalid password. Try again!";
+                        UserLogDAL objUserLog = new UserLogDAL();
+                        objUserLog.LoginDateTime = DateTime.Now;
+                        objUserLog.linktoUserMasterId = objUserMaster.UserMasterId;
+                        objUserLog.IPAddress = Request.UserHostAddress;
+                        objUserLog.Remark = "Login Failed! Password not matched.";
+                        RecordStatus rsStatus = objUserLog.InsertUserLog();
+                    }
+                    else if (objUserMaster.IsActive == false)
+                    {
+                        lblMessage.Text = "User is disabled by administrator.";
+                        lblMessage.Visible = true;
+                        UserLogDAL objUserLog = new UserLogDAL();
+                        objUserLog.LoginDateTime = DateTime.Now;
+                        objUserLog.linktoUserMasterId = objUserMaster.UserMasterId;
+                        objUserLog.IPAddress = Request.UserHostAddress;
+                        objUserLog.Remark = "Login Failed! User is disabled.";
+                        RecordStatus rsStatus = objUserLog.InsertUserLog();
+                    }
+                }
+                else
+                {
+                    lblMessage.Text = "Invalid UserName. Try again!";
+                    UserLogDAL objUserLog = new UserLogDAL();
+                    objUserLog.LoginDateTime = DateTime.Now;
+                    objUserLog.linktoUserMasterId = objUserMaster.UserMasterId;
+                    objUserLog.IPAddress = Request.UserHostAddress;
+                    objUserLog.Remark = "Login Failed! Invalid Username.";
+                    RecordStatus rsStatus = objUserLog.InsertUserLog();
+                }
+            }
+            catch (System.Threading.ThreadAbortException)
+            {
+            }
+            catch (Exception ex)
+            {
+                Globals.SaveError(ex);
+            }
+        }
