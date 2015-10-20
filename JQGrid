@@ -1,0 +1,343 @@
+
+@section HeaderSection{
+    <link href="~/Content/jquery.jqGrid/ui.jqgrid.css" rel="stylesheet" />
+    <script src="~/Scripts/i18n/grid.locale-en.js"></script>
+    <script type="text/jscript" src="~/Scripts/jquery.jqGrid.min.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            alert(1);
+
+            var GuestMasterId = 0;
+            jQuery("#grdGuestListTest").jqGrid({
+                url: "/Guest/GetAllGuestAttendee",
+                datatype: "json",
+                colNames: ['Edit', 'Delete', 'GuestMasterId', 'FullName', 'Address', 'City', 'State', 'Country', 'Zipcode', 'Cell', 'Email', 'Side', 'Total', 'AgeUnder3', 'AgeUnder21', 'AgeAbove21', 'Room', 'NonVeg',
+                    'Veg', 'Alcohol', 'Mehendi', 'Ganesh Pujan',
+                    'Pithi', 'Livermore Valley Wine Country Tour', 'Satak', 'Sangeet/Ras Garaba', 'Lagna', 'Reception', 'Golf with Groom & Vevai'],
+                colModel: [
+                    { key: true, name: 'edit', width: 50, index: 'GuestMasterId', formatter: editlink, frozen: true, sortable: false },
+                    { key: true, name: 'delete', width: 50, index: 'GuestMasterId', formatter: deletelink, frozen: true, sortable: false },
+                     { key: true, name: 'GuestMasterId', width: 180, hidden: true, index: 'GuestMasterId', editable: false, frozen: true },
+                     { key: false, name: 'FullName', width: 180, index: 'FullName', editable: false, frozen: true },
+                     { key: false, name: 'Address', width: 180, index: 'Address', editable: false },
+                     { key: false, name: 'City', width: 100, index: 'City', editable: false },
+                     { key: false, name: 'State', width: 100, index: 'State', editable: false },
+                     { key: false, name: 'Country', width: 100, index: 'Country', editable: false },
+                     { key: false, name: 'Zipcode', width: 70, index: 'Zipcode', editable: false },
+                     { key: false, name: 'Cell', width: 100, index: 'Cell', editable: false },
+                     { key: false, name: 'Email', width: 150, index: 'Email', editable: false },
+                     { key: false, name: 'Side', width: 100, index: 'Side', editable: false },
+                     { key: false, name: 'Total', width: 50, index: 'Total', editable: false, align: 'center' },
+                     { key: false, name: 'AgeUnder3', width: 80, index: 'AgeUnder3', editable: false, align: 'center' },
+                     { key: false, name: 'AgeUnder21', width: 90, index: 'AgeUnder21', editable: false, align: 'center' },
+                     { key: false, name: 'AgeAbove21', width: 90, index: 'AgeAbove21', editable: false, align: 'center' },
+                     { key: false, name: 'Room', width: 50, index: 'Room', editable: false, align: 'center' },
+                     { key: false, name: 'NonVeg', width: 60, index: 'NonVeg', editable: false, align: 'center' },
+                     { key: false, name: 'Veg', width: 50, index: 'Veg', editable: false, align: 'center' },
+                     { key: false, name: 'Alcohol', width: 60, index: 'Alcohol', editable: false, align: 'center' },
+                     { key: false, name: 'Mehendi', width: 70, index: 'Mehendi', editable: false, align: 'center' },
+                     { key: false, name: 'GaneshPujan', width: 100, index: 'GaneshPujan', editable: false, align: 'center' },
+                     { key: false, name: 'Pithi', width: 70, index: 'Pithi', editable: false, align: 'center' },
+                     { key: false, name: 'LivermoreValleyWineCountryTour', width: 270, index: 'LivermoreValleyWineCountryTour', editable: false, align: 'center' },
+                     { key: false, name: 'Satak', width: 80, index: 'Satak', editable: false, align: 'center' },
+                     { key: false, name: 'SangeetRasGaraba', width: 150, index: 'SangeetRasGaraba', editable: false, align: 'center' },
+                     { key: false, name: 'Lagna', width: 70, index: 'Lagna', editable: false, align: 'center' },
+                     { key: false, name: 'Reception', width: 100, index: 'Reception', editable: false, align: 'center' },
+                     { key: false, name: 'GolfwithGroomVevai', width: 200, index: 'GolfwithGroomVevai', editable: false, align: 'center' },
+                ],
+
+                rowNum: 100,
+                rowList: [100, 150, 200],
+                width: 1200,
+                height: 'auto',
+                footerrow: true,
+                shrinkToFit: false,
+                pager: '#pgrGuestListTest',
+                sortname: 'id',
+                viewrecords: true,
+                sortorder: "desc",
+                multiselect: false,
+                caption: "Guest Details",
+                jsonReader: {
+                    root: "rows",
+                    page: "page",
+                    total: "total",
+                    records: "records",
+                    repeatitems: false,
+                    Id: "0"
+                },
+
+                gridComplete: function () {
+                    var $grid = $('#grdGuestListTest');
+                    var Totalsum = $grid.jqGrid('getCol', 'Total', false, 'sum');
+                    var AgeUnder3sum = $grid.jqGrid('getCol', 'AgeUnder3', false, 'sum');
+                    var AgeUnder21sum = $grid.jqGrid('getCol', 'AgeUnder21', false, 'sum');
+                    var AgeAbove21sum = $grid.jqGrid('getCol', 'AgeAbove21', false, 'sum');
+                    var Roomsum = $grid.jqGrid('getCol', 'Room', false, 'sum');
+                    var NonVegsum = $grid.jqGrid('getCol', 'NonVeg', false, 'sum');
+                    var Vegsum = $grid.jqGrid('getCol', 'Veg', false, 'sum');
+                    var Alcoholsum = $grid.jqGrid('getCol', 'Alcohol', false, 'sum');
+                    var Mehendisum = $grid.jqGrid('getCol', 'Mehendi', false, 'sum');
+                    var GaneshPujansum = $grid.jqGrid('getCol', 'GaneshPujan', false, 'sum');
+                    var Pithisum = $grid.jqGrid('getCol', 'Pithi', false, 'sum');
+                    var LivermoreValleyWineCountryToursum = $grid.jqGrid('getCol', 'LivermoreValleyWineCountryTour', false, 'sum');
+                    var Sataksum = $grid.jqGrid('getCol', 'Satak', false, 'sum');
+                    var SangeetRasGarabasum = $grid.jqGrid('getCol', 'SangeetRasGaraba', false, 'sum');
+                    var Lagnasum = $grid.jqGrid('getCol', 'Lagna', false, 'sum');
+                    var Receptionsum = $grid.jqGrid('getCol', 'Reception', false, 'sum');
+                    var GolfwithGroomVevaisum = $grid.jqGrid('getCol', 'GolfwithGroomVevai', false, 'sum');
+                    $grid.jqGrid('footerData', 'set',
+                        {
+                            'Side': "Total:",
+                            'Total': Totalsum,
+                            'AgeUnder3': AgeUnder3sum,
+                            'AgeUnder21': AgeUnder21sum,
+                            'AgeAbove21': AgeAbove21sum,
+                            'Room': Roomsum,
+                            'NonVeg': NonVegsum,
+                            'Veg': Vegsum,
+                            'Alcohol': Alcoholsum,
+                            'Mehendi': Mehendisum,
+                            'GaneshPujan': GaneshPujansum,
+                            'Pithi': Pithisum,
+                            'LivermoreValleyWineCountryTour': LivermoreValleyWineCountryToursum,
+                            'Satak': Sataksum,
+                            'SangeetRasGaraba': SangeetRasGarabasum,
+                            'Lagna': Lagnasum,
+                            'Reception': Receptionsum,
+                            'GolfwithGroomVevai': GolfwithGroomVevaisum
+                        });
+                }
+            });
+            jQuery("#grdGuestListTest").jqGrid('setFrozenColumns');
+            jQuery("#grdGuestListTest").jqGrid('navGrid', '#pgrGuestListTest', { add: false, edit: false, del: false, search: false, refresh: false });
+
+        });
+    </script>
+}
+
+
+
+@section ContentBody{
+    <h2>GuestTestView</h2>
+    <div class="row">
+        &nbsp;
+    </div>
+    <div class="row" style="margin-right: 25px;">
+        <div class="row">
+            <div class="col-lg-12">
+                <table id="grdGuestListTest"></table>
+                <div id="pgrGuestListTest"></div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        &nbsp;
+    </div>
+}
+
+@section Scripts{}
+
+
+
+Controller :-
+
+public JsonResult GetAllGuestAttendee(string sidx, string sord, int page, int rows)
+        {
+            int pageIndex = Convert.ToInt32(page) - 1;
+            int pageSize = rows;
+
+            //var GetAllGuestWithAttendee = db.Database.SqlQuery<GuestListViewModel>("dbo.GetAllGuestWithAttendee").ToList();
+            //var GetAllGuestWithoutAttendee = db.Database.SqlQuery<GuestListViewModel>("dbo.GetAllGuestWithoutAttendee").ToList();
+            //var AllGuestAttendee = GetAllGuestWithAttendee.Concat(GetAllGuestWithoutAttendee);
+
+
+            var AllGuestAttendee = db.Database.SqlQuery<GuestListViewModel>("dbo.GetAllGuestWithoutAttendee").ToList();
+
+            int LoginAdminUserMasterId = Convert.ToInt32(Session["LoginAdminUserMasterId"]);
+            UserRoleTran usertran = db.UserRoleTrans.Find(LoginAdminUserMasterId);
+            UserRole urole = db.UserRoles.Find(usertran.linktoRoleMasterId);
+
+
+            if (urole.RoleMasterId == 2)
+            {
+                List<AssignSideUserTran> lstAssignSide = db.AssignSideUserTrans.ToList();
+                var side = string.Join(",", lstAssignSide.Where(p => p.linktoAdminUserMasterId == LoginAdminUserMasterId).Select(p => p.linktoSideMasterId.ToString()).ToList());
+                if (!string.IsNullOrEmpty(side))
+                {
+                    IEnumerable<int> ids = side.Split(',').Select(str => int.Parse(str));
+                    AllGuestAttendee = AllGuestAttendee.Where(x => ids.Contains(x.linktoSideMasterId)).ToList();
+                }
+            }
+
+            //var AllGuestAttendee = db.Database.SqlQuery<GuestListViewModel>("dbo.GetAllGuestWithoutAttendee").Select(
+            //   a => new
+            //   {
+            //       a.GuestMasterId,
+            //       a.OrderId,
+            //       a.FullName,
+            //       a.Address,
+            //       a.City,
+            //       a.State,
+            //       a.Country,
+            //       a.Zipcode,
+            //       a.Cell,
+            //       a.Email,
+            //       a.Side,
+            //       a.Total,
+            //       a.AgeUnder3,
+            //       a.AgeUnder21,
+            //       a.AgeAbove21,
+            //       a.Room,
+            //       a.NonVeg,
+            //       a.Veg,
+            //       a.Alcohol,
+            //       a.Mehendi,
+            //       a.GaneshPujan,
+            //       a.Pithi,
+            //       a.Satak,
+            //       a.Social,
+            //       a.Lagna,
+            //       a.Reception
+            //   });
+
+            //Date on : [ 24-08-2015 ] : [ Added for getting Grand Total in footer row of grid ]
+            //Start Code By : Nidhi
+
+            int GrandTotal = 0,
+                AgeUnder3Total = 0,
+                AgeUnder21Total = 0,
+                AgeAbove21Total = 0,
+                RoomTotal = 0,
+                NonVegTotal = 0,
+                VegTotal = 0,
+                AlcoholTotal = 0,
+                MehendiTotal = 0,
+                GaneshPujanTotal = 0,
+                PithiTotal = 0,
+                SatakTotal = 0,
+                SocialTotal = 0,
+                LagnaTotal = 0,
+                ReceptionTotal = 0;
+
+            foreach (var item in AllGuestAttendee)
+            {
+                GrandTotal = GrandTotal + item.Total;
+                AgeUnder3Total = AgeUnder3Total + item.AgeUnder3;
+                AgeUnder21Total = AgeUnder21Total + item.AgeUnder21;
+                AgeAbove21Total = AgeAbove21Total + item.AgeAbove21;
+                RoomTotal = RoomTotal + item.Room;
+                NonVegTotal = NonVegTotal + item.NonVeg;
+                VegTotal = VegTotal + item.Veg;
+                AlcoholTotal = AlcoholTotal + item.Alcohol;
+                MehendiTotal = MehendiTotal + item.Mehendi;
+                GaneshPujanTotal = GaneshPujanTotal + item.GaneshPujan;
+                PithiTotal = PithiTotal + item.Pithi;
+                SatakTotal = SatakTotal + item.Satak;
+                SocialTotal = SocialTotal + item.Social;
+                LagnaTotal = LagnaTotal + item.Lagna;
+                ReceptionTotal = ReceptionTotal + item.Reception;
+            }
+
+            var jsonGrandTotalRow = new
+            {
+                GrandTotal = GrandTotal,
+                AgeUnder3Total = AgeUnder3Total,
+                AgeUnder21Total = AgeUnder21Total,
+                AgeAbove21Total = AgeAbove21Total,
+                RoomTotal = RoomTotal,
+                NonVegTotal = NonVegTotal,
+                VegTotal = VegTotal,
+                AlcoholTotal = AlcoholTotal,
+                MehendiTotal = MehendiTotal,
+                GaneshPujanTotal = GaneshPujanTotal,
+                PithiTotal = PithiTotal,
+                SatakTotal = SatakTotal,
+                SocialTotal = SocialTotal,
+                LagnaTotal = LagnaTotal,
+                ReceptionTotal = ReceptionTotal
+            };
+
+            //End Code By :  Nidhi
+
+            int totalRecords = AllGuestAttendee.Count();
+            var totalPages = (int)Math.Ceiling((float)totalRecords / (float)rows);
+            if (sord.ToUpper() == "DESC")
+            {
+                if (sidx == "FullName")
+                {
+                    AllGuestAttendee = AllGuestAttendee.OrderByDescending(s => s.FullName).ToList();
+                }
+                else if (sidx == "Side")
+                {
+                    AllGuestAttendee = AllGuestAttendee.OrderByDescending(s => s.Side).ToList();
+                }
+                else
+                {
+                    AllGuestAttendee = AllGuestAttendee.OrderByDescending(s => s.OrderId).ToList();
+                }
+                AllGuestAttendee = AllGuestAttendee.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+            }
+            else
+            {
+                if (sidx == "FullName")
+                {
+                    AllGuestAttendee = AllGuestAttendee.OrderBy(s => s.FullName).ToList();
+                }
+                else if (sidx == "Side")
+                {
+                    AllGuestAttendee = AllGuestAttendee.OrderBy(s => s.Side).ToList();
+                }
+                else
+                {
+                    AllGuestAttendee = AllGuestAttendee.OrderBy(s => s.OrderId).ToList();
+                }
+                AllGuestAttendee = AllGuestAttendee.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+            }
+
+            var jsonData = new
+            {
+                total = totalPages,
+                page,
+                records = totalRecords,
+                rows = AllGuestAttendee,
+                userData = jsonGrandTotalRow
+            };
+            return Json(jsonData, JsonRequestBehavior.AllowGet);
+        }
+
+
+ViewModel:-
+
+    public class GuestListViewModel
+    {
+        public int GuestMasterId { get; set; }
+        public int OrderId { get; set; }
+        public int linktoSideMasterId { get; set; }
+        public string FullName { get; set; }
+        public string AttendeeName { get; set; }
+        public string Address { get; set; }
+        public string City { get; set; }
+        public string State { get; set; }
+        public string Country { get; set; }
+        public string Zipcode { get; set; }
+        public string Cell { get; set; }
+        public string Email { get; set; }
+        public string Side { get; set; }
+        public int Total { get; set; }
+        public int AgeUnder3 { get; set; }
+        public int AgeUnder21 { get; set; }
+        public int AgeAbove21 { get; set; }
+        public int Room { get; set; }
+        public int NonVeg { get; set; }
+        public int Veg { get; set; }
+        public int Alcohol { get; set; }
+        public int Mehendi { get; set; }
+        public int GaneshPujan { get; set; }
+        public int Pithi { get; set; }
+        public int Satak { get; set; }
+        public int Social { get; set; }
+        public int Lagna { get; set; }
+        public int Reception { get; set; }
+    }
