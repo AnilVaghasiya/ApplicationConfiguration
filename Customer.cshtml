@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewBag.Title = "Customer";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -91,22 +91,22 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        @*<div class="form-group">
-                                                                <div class="row">
-                                                                    <div class="col-lg-8">
-                                                                        <div class="col-lg-4 col-sm-4">
-                                                                            <label class="control-label">Product Image <span class="red">*</span></label>
-                                                                        </div>
-                                                                        <div class="col-lg-8 col-sm-8">
-                                                                            <img ng-show="model.id != null &amp;&amp; model.id != ''" ng-src="~/MediaUploads/" id="selectMedia" class="img-polaroid ng-hide" style="height:100px;width:100px;border: 2px solid #36a9e1" src="~/MediaUploads/">
-                                                                            <span class="btn btn-green fileinput-button btn-sm">
-                                                                                <i class="fa fa-fw fa-plus"></i>
-                                                                                <input type="file" name="file" accept="image/*" ng-model="model.ProductImage" onchange="angular.element(this).scope().selectFileforUpload(this.files)" class="ng-pristine ng-valid">
-                                                                            </span>
-                                                                        </div>
+                                                        <div class="form-group">
+                                                            <div class="row">
+                                                                <div class="col-lg-8">
+                                                                    <div class="col-lg-4 col-sm-4">
+                                                                        <label class="control-label">Product Image <span class="red">*</span></label>
+                                                                    </div>
+                                                                    <div class="col-lg-8 col-sm-8">
+                                                                        <img ng-show="model.id != null && model.id != ''" ng-src="~/MediaUploads/{{model.ProductImage}}" id="selectMedia" class="img-polaroid ng-hide" style="height:100px;width:100px;border: 2px solid #36a9e1" src="~/MediaUploads/{{model.ProductImage}}">
+                                                                        <span class="btn btn-green fileinput-button btn-sm">
+                                                                            <i class="fa fa-fw fa-plus"></i>
+                                                                            <input type="file" name="file" accept="image/*" @*ng-model="model.ProductImage"*@ onchange="angular.element(this).scope().selectFileforUpload(this.files)" class="ng-pristine ng-valid">
+                                                                        </span>
                                                                     </div>
                                                                 </div>
-                                                            </div>*@
+                                                            </div>
+                                                        </div>
                                                         <br>
                                                         <div class="form-group">
                                                             <div class="row">
@@ -146,7 +146,7 @@
                                                                         <thead>
                                                                             <tr>
                                                                                 <th style="width:5%">No</th>
-                                                                                @*<th style="width:12%">Product Image</th>*@
+                                                                                <th style="width:12%">Product Image</th>
                                                                                 <th style="width:12%">Product Name</th>
                                                                                 <th style="width:12%">Product Type</th>
                                                                                 <th style="width:12%">Product Price</th>
@@ -156,7 +156,7 @@
                                                                         <tbody>
                                                                             <tr ng-repeat="o in filtered =( lstProducts | filter:searchFilter1:strict) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit" class="ng-scope">
                                                                                 <td class="ng-binding">{{$index+1}}  </td>
-                                                                                @*     <td><img ng-src="~/MediaUploads/BankImage/{{o.ProductImage}}" class="img-polaroid" style="height:100px;width:100px;border: 2px solid #36a9e1" src="~/MediaUploads/{{o.ProductImage}}"></td>*@
+                                                                                <td><img ng-src="~/MediaUploads/{{o.ProductImage}}" class="img-polaroid" style="height:100px;width:100px;border: 2px solid #36a9e1" src="~/MediaUploads/{{o.ProductImage}}"></td>
                                                                                 <td> {{o.ProductName}}</td>
                                                                                 <td> {{o.ProductType}}</td>
                                                                                 <td> {{o.Price}}   </td>
