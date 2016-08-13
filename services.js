@@ -664,7 +664,34 @@ angular.module('SharedServices', [])
         return arr.slice(start, end);
     };
 })
+.factory('ProductImageUploadService', function ($http, $q) { // explained abour controller and service in part 2
 
+    var fac = {};
+    fac.UploadFile = function (file, objBank) {
+        var formData = new FormData();
+        formData.append("file", file);
+        //We can send more data to server using append                
+        formData.append("obj", JSON.stringify(objBank));
+        var defer = $q.defer();
+        $http.post("/Customer/CreateProductWithFile", formData,
+            {
+                withCredentials: true,
+                headers: { 'Content-Type': undefined },
+                transformRequest: angular.identity
+            })
+        .success(function (d) {
+            defer.resolve(d);
+        })
+        .error(function () {
+            defer.reject("File Upload Failed!");
+        });
+
+        return defer.promise;
+
+    }
+    return fac;
+
+})
 .factory('BankImageUploadService', function ($http, $q) { // explained abour controller and service in part 2
 
     var fac = {};
