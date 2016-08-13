@@ -59,51 +59,44 @@ function ProductCtrl($scope, $http, $location, $anchorScroll, $window, $timeout,
         $scope.SelectedFileForUpload = file[0];
     }
 
-    $scope.submitted = false;
+      $scope.submitted = false;
     $scope.uploadImage = false;
     $scope.CreateProduct = function (form, o) {
         if (form.$valid) {
-            console.log(o, $scope.model.idUser);
-            //if (o.id != null && o.id != "") {
-            //}
-            //else {
-            //    o.id = 0;
-            //}
-            //o.IsVisible = $scope.model.IsShowBank;
-            //if ($scope.SelectedFileForUpload != null && $scope.SelectedFileForUpload != undefined) {
-            //    BankImageUploadService.UploadFile($scope.SelectedFileForUpload, o).then(function (data) {
-            //        if (data.success == 1) {
-            //            $("#NewProduct").removeClass("active");
-            //            $("#tab2").removeClass("active");
-            //            $("#Products").addClass("active");
-            //            $("#tab1").addClass("active");
-            //            toastr.success(data.message);
-            //            $scope.Reset();
-            //        }
-            //        else if (data.error == 2) {
-            //            toastr.error(data.message);
-            //        }
-            //    }, function (e) {
-            //        alert(e);
-            //    });
-            //}
-            //else {
-            $http.post(route.Lookup.CreateProductWithoutFile, o).success(function (data) {
-                if (data.success == 1) {
-                    $("#NewProduct").removeClass("active");
-                    $("#tab2").removeClass("active");
-                    $("#Products").addClass("active");
-                    $("#tab1").addClass("active");
-                    $.unblockUI();
-                    toastr.success(data.message);
-                    $scope.Reset();
-                }
-                else if (data.error == 2) {
-                    $.unblockUI();
-                    toastr.error(data.message);
-                }
-            });
-            //}
+            if ($scope.SelectedFileForUpload != null && $scope.SelectedFileForUpload != undefined) {
+                ProductImageUploadService.UploadFile($scope.SelectedFileForUpload, o).then(function (data) {
+                    if (data.success == 1) {
+                        $("#NewProduct").removeClass("active");
+                        $("#tab2").removeClass("active");
+                        $("#Products").addClass("active");
+                        $("#tab1").addClass("active");
+                        toastr.success(data.message);
+                        $scope.Reset();
+                    }
+                    else if (data.error == 2) {
+                        toastr.error(data.message);
+                    }
+                }, function (e) {
+                    alert(e);
+                });
+            }
+            else {
+                $http.post(route.Lookup.CreateProductWithoutFile, o).success(function (data) {
+                    if (data.success == 1) {
+                        $("#NewProduct").removeClass("active");
+                        $("#tab2").removeClass("active");
+                        $("#Products").addClass("active");
+                        $("#tab1").addClass("active");
+                        $.unblockUI();
+                        toastr.success(data.message);
+                        $scope.Reset();
+                    }
+                    else if (data.error == 2) {
+                        $.unblockUI();
+                        toastr.error(data.message);
+                    }
+                });
+            }
         } else {
             $scope.submitted = true;
         }
@@ -116,12 +109,13 @@ function ProductCtrl($scope, $http, $location, $anchorScroll, $window, $timeout,
         $scope.model.ProductName = o.ProductName;
         $scope.model.ProductType = o.ProductType;
         $scope.model.Price = o.Price,
-        //    $scope.model.ProductImage = o.ProductImage;
+        $scope.model.ProductImage = o.ProductImage;
         $("#NewProduct").addClass("active");
         $("#tab2").addClass("active");
         $("#Products").removeClass("active");
         $("#tab1").removeClass("active");
     }
+
 
     $scope.DeleteProduct = function (id) {
         console.log(id);
