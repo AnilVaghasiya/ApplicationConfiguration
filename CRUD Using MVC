@@ -1,0 +1,144 @@
+         public JsonResult GetAllUser()
+        {
+            Dictionary<string, object> res = new Dictionary<string, object>();
+            try
+            {
+                using (var db = new TestBCSEntities())
+                {
+                    List<UserInformation> lst = db.tblUserInformations.Select(x => new UserInformation()
+                        {
+                            id = x.id,
+                            FirstName = x.FirstName,
+                            LastName = x.LastName,
+                            IsActive = x.IsActive
+                        }).ToList();
+                    res["success"] = 1;
+                    res["lstUser"] = lst;
+                }
+            }
+            catch (Exception ex)
+            {
+                res["error"] = 2;
+                res["message"] = ex.Message.ToString();
+            }
+            return Json(res, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetAllProducts()
+        {
+            Dictionary<string, object> res = new Dictionary<string, object>();
+            try
+            {
+                using (var db = new TestBCSEntities())
+                {
+                    List<Products> lst = db.tblProducts.Where(x => x.IsDeleted == false).Select(x => new Products()
+                    {
+                        id = x.id,
+                        idUser = x.idUser,
+                        FirstName = x.tblUserInformation.FirstName,
+                        LastName = x.tblUserInformation.LastName,
+                        IsActive = x.tblUserInformation.IsActive,
+                        Price = x.Price,
+                        ProductName = x.ProductName,
+                        ProductType = x.ProductType,
+                        IsDeleted = x.IsDeleted,
+                        ProductImage = x.ProductImage
+                    }).ToList();
+                    res["success"] = 1;
+                    res["lstProducts"] = lst;
+                }
+            }
+            catch (Exception ex)
+            {
+                res["error"] = 2;
+                res["message"] = ex.Message.ToString();
+            }
+            return Json(res, JsonRequestBehavior.AllowGet);
+        }
+   public JsonResult CreateProduct(tblProduct objproduct)
+        {
+            Dictionary<string, object> res = new Dictionary<string, object>();
+            try
+            {
+                using (var db = new TestBCSEntities())
+                {
+                    if (objproduct.id == 0)
+                    {
+                        tblProduct checkProduct = db.tblProducts.Where(x => x.ProductName.ToLower().Equals(objproduct.ProductName)).FirstOrDefault();
+                        if (checkProduct == null)
+                        {
+                            tblProduct addProduct = new tblProduct();
+                            addProduct.idUser = objproduct.idUser;
+                            addProduct.ProductName = objproduct.ProductName;
+                            addProduct.ProductType = objproduct.ProductType;
+                            addProduct.Price = objproduct.Price;
+                            db.tblProducts.Add(addProduct);
+                            db.SaveChanges();
+                            res["success"] = 1;
+                            res["message"] = "Product is added successfully";
+                        }
+                        else
+                        {
+                            res["error"] = 2;
+                            res["message"] = "Product is already exist";
+                        }
+                    }
+                    else
+                    {
+                        tblProduct checkProduct = db.tblProducts.Where(x => x.ProductName.ToLower().Equals(objproduct.ProductName)).FirstOrDefault();
+                        if (checkProduct == null)
+                        {
+                            tblProduct addProduct = new tblProduct();
+                            addProduct.id = objproduct.id;
+                            addProduct.idUser = objproduct.idUser;
+                            addProduct.ProductName = objproduct.ProductName;
+                            addProduct.ProductType = objproduct.ProductType;
+                            addProduct.Price = objproduct.Price;
+                            db.Entry(addProduct).State = System.Data.Entity.EntityState.Modified;
+                            db.SaveChanges();
+                            res["success"] = 1;
+                            res["message"] = "Product is Modified successfully";
+                        }
+                        else
+                        {
+                            res["error"] = 2;
+                            res["message"] = "Sorry, you do not update product information because it is already exist";
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                res["error"] = 2;
+                res["message"] = ex.Message.ToString();
+            }
+            return Json(res, JsonRequestBehavior.AllowGet);
+        }
+        public JsonResult DeleteProduct(int id)
+        {
+            Dictionary<string, object> res = new Dictionary<string, object>();
+            try
+            {
+                using (var db = new TestBCSEntities())
+                {
+
+                    tblProduct checkProduct = db.tblProducts.Where(x => x.id == id).FirstOrDefault();
+                    if (checkProduct != null)
+                    {
+                        checkProduct.IsDeleted = true;
+                        db.Entry(checkProduct).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+                        res["success"] = 1;
+                        res["message"] = "Product is Deleted successfully";
+                        //res["error"] = 2;
+                        //res["message"] = "you could not delete Product because its contains reference";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                res["error"] = 2;
+                res["message"] = ex.Message.ToString();
+            }
+            return Json(res, JsonRequestBehavior.AllowGet);
+        }
