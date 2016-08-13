@@ -114,6 +114,122 @@
             }
             return Json(res, JsonRequestBehavior.AllowGet);
         }
+        
+         #region Upload Images and Add data
+        public JsonResult CreateProductWithFile(string obj)
+        {
+            Dictionary<string, object> res = new Dictionary<string, object>();
+            try
+            {
+                using (var db = new TestBCSEntities())
+                {
+                    HttpPostedFileBase file = Request.Files["file"];
+                    tblProduct objproduct = JsonConvert.DeserializeObject<tblProduct>(obj);
+
+                    if (objproduct.id == 0)
+                    {
+                        //tblProduct checkProduct = db.tblProducts.Where(x => x.ProductName.ToLower().Equals(objproduct.ProductName)).FirstOrDefault();
+
+                        if (db.tblProducts.Any(x => x.ProductName.ToLower().Equals(objproduct.ProductName)))
+                        {
+                            res["error"] = 2;
+                            res["message"] = "Product is already exist";
+                        }
+                        else
+                        {
+                            if (file != null)
+                            {
+                                tblProduct addProduct = new tblProduct();
+                                addProduct.idUser = objproduct.idUser;
+                                addProduct.ProductName = objproduct.ProductName;
+                                addProduct.ProductType = objproduct.ProductType;
+                                addProduct.Price = objproduct.Price;
+                                db.tblProducts.Add(addProduct);
+                                db.SaveChanges();
+                                res["success"] = 1;
+                                res["message"] = "Product is added successfully";
+
+                                int id = objproduct.id;
+
+                                var fname = Path.GetFileNameWithoutExtension(file.FileName);
+                                var Ext = Path.GetExtension(file.FileName);
+                                string FileName = System.IO.Path.GetFileName(file.FileName);
+
+                                try
+                                {
+                                    if (file.FileName != "")
+                                    {
+                                        string physicalPath = Server.MapPath("~/MediaUploads/" + id + Ext);
+                                        if (System.IO.File.Exists(physicalPath))
+                                        {
+                                            System.IO.File.Delete(id + Ext);
+                                        }
+                                        file.SaveAs(physicalPath);
+                                        tblProduct objProductInfo = db.tblProducts.Where(x => x.id == id).FirstOrDefault();
+                                        objProductInfo.ProductImage = id + Ext;
+                                        db.Entry(objProductInfo).State = System.Data.Entity.EntityState.Modified;
+                                        db.SaveChanges();
+                                    }
+                                }
+                                catch (Exception)
+                                {
+                                    res["error"] = 2;
+                                    res["message"] = "File upload failed! Please try again";
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (db.tblProducts.Any(x => x.ProductName.ToLower().Equals(objproduct.ProductName)))
+                        {
+                            res["error"] = 2;
+                            res["message"] = "Sorry, you do not update product information because it is already exist";
+                        }
+                        else
+                        {
+                            var fname = Path.GetFileNameWithoutExtension(file.FileName);
+                            var Ext = Path.GetExtension(file.FileName);
+                            string FileName = System.IO.Path.GetFileName(file.FileName);
+
+                            try
+                            {
+                                if (file.FileName != "")
+                                {
+                                    string physicalPath = Server.MapPath("~/MediaUploads/" + objproduct.id + Ext);
+                                    if (System.IO.File.Exists(physicalPath))
+                                    {
+                                        System.IO.File.Delete(physicalPath);
+                                    }
+
+                                    file.SaveAs(physicalPath);
+                                    objproduct.ProductImage = objproduct.id + Ext;
+                                    db.Entry(objproduct).State = System.Data.Entity.EntityState.Modified;
+                                    db.SaveChanges();
+                                    res["success"] = 1;
+                                    res["message"] = "Product is Modified successfully";
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                res["error"] = 2;
+                                res["message"] = "File upload failed! Please try again";
+                            }
+
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                res["error"] = 2;
+                res["message"] = ex.Message.ToString();
+            }
+            return Json(res, JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion
+        
         public JsonResult DeleteProduct(int id)
         {
             Dictionary<string, object> res = new Dictionary<string, object>();
