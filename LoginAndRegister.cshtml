@@ -1,0 +1,180 @@
+﻿@model TestExam.Models.AccountModel
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section>
+    <div class="col-lg-8 col-md-8 panel well">
+        <div class="panel-group">
+            @using (Html.BeginForm(new { ReturnUrl = ViewBag.ReturnUrl }))
+            {
+                <div class="form">
+                    <div class="login-box">
+                        <h2>Sign In</h2>
+                        @using (Html.BeginForm("Index", "Account", FormMethod.Post))
+                        {
+                            <div class="form-group">
+                                <input name="UserName" id="UserName" type="text" placeholder="Mobile Number" class="form-control" />
+                                <span style="color:red;"> @Html.ValidationMessageFor(model => model.UserName)</span>
+                            </div>
+                            <div class="form-group">
+                                <input name="Password" id="Password" type="password" placeholder="Password" class="form-control" />
+                                <div class="clearfix"><span style="color:red;"> @Html.ValidationMessageFor(model => model.Password)</span></div>
+                            </div>
+
+                            if (ViewData["error"] != null && ViewData["error"].ToString().Equals("1"))
+                            {
+                                <div class="alert alert-danger">
+                                    @ViewData["message"]
+                                </div>
+                            }
+
+                            <label class="remember" for="remember">@Html.CheckBoxFor(x => x.RememberMe, new { @id = "RememberMe" })Remember me</label>
+
+                            <div class="clearfix"></div>
+                            <label class="input-large"><a href="~/Account/ForgotPassword" id="fgp">Forgot Password</a></label>
+                            <div class="clearfix"></div>
+
+
+                            <button type="submit" class="btn btn-primary col-xs-12">Login</button>
+                        }
+                        <hr>
+                    </div>
+                </div>
+            }
+
+            @*<form role="form">
+                    <div class="form-group">
+                        <label for="email">Email address:</label>
+                        <input type="email" class="form-control" id="UserName">
+                    </div>
+                    <div class="form-group">
+                        <label for="pwd">Password:</label>
+                        <input type="password" class="form-control" id="Password">
+                    </div>
+                    <div class="checkbox">
+                        <label><input type="checkbox"> Remember me</label>
+                    </div>
+                    <button type="submit" class="btn btn-default">Submit</button>
+                </form>*@
+        </div>
+    </div>
+</section>
+
+
+<br />
+<section ng-controller="RegisterAccountCtrl">
+    <div class="col-lg-8 col-md-8 panel well">
+        <div class="panel-group">
+            <h3>Register</h3>
+            <form role="form"
+                  id="form"
+                  name="form"
+                  class="form-horizontal"
+                  novalidate
+                  ng-submit="formSubmit()">
+                <div class="box-content">
+                    <div class="col-lg-12">
+                        <div class="form-group" ng-class="{ 'has-error' : submitted && form.FirstName.$invalid && form.LastName.$invalid}">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="col-lg-4 col-sm-4">
+                                        <label class="control-label">Full Name *</label>
+                                    </div>
+                                    <div class="col-lg-4 col-sm-4">
+                                        <input id="FirstName" name="FirstName" type="text" maxlength="256" class="form-control" ng-required="true" ng-model="model.FirstName" placeholder="First Name">
+                                        <p style="color: #a94442" ng-show="submitted && form.FirstName.$invalid" class="help-block">First Name is required.</p>
+                                    </div>
+                                    <div class="col-lg-4 col-sm-4">
+                                        <input id="LastName" name="LastName" type="text" maxlength="256" class="form-control" ng-required="true" ng-model="model.LastName" placeholder="Last Name">
+                                        <p style="color: #a94442" ng-show="submitted && form.LastName.$invalid" class="help-block">Last Name is required.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @*<div class="form-group">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="col-lg-4 col-sm-4">
+                                            <label>
+                                                <label class="control-label"> Gender</label>
+                                            </label>
+                                        </div>
+                                        <div class="col-lg-8 col-sm-8">
+                                            <select id="Gender" name="Gender" ng-model="model.Gender" class="form-control" ng-required="true">
+                                                <option value="Male">Male</option>
+                                                <option value="Female">Female</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>*@
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="col-lg-4 col-sm-4">
+                                        <label class="control-label">Date of Birth</label>
+                                    </div>
+                                    <div class="col-lg-8 col-sm-8">
+                                        <div class="row">
+                                            <div class="col-lg-4">
+                                                <select id="year" ng-model="DOBModel.year" class="form-control " ng-required="true" name="year" ng-change="DaysinMonth()">
+                                                    <option value="0">YYYY</option>
+                                                    <option value="{{value}}" ng-repeat="value in lstYear" ng-cloak>{{value}}</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <select id="month" ng-model="DOBModel.month" class="form-control " ng-required="true" name="month" ng-change="DaysinMonth()">
+                                                    <option value="0">MM</option>
+                                                    <option value="{{$index+1}}" ng-repeat="value in lstMonth" ng-cloak>{{value}}</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <select id="day" name="day" ng-model="DOBModel.day" class="form-control " ng-required="true">
+                                                    <option value="0">DD</option>
+                                                    <option value="{{value}}" ng-repeat="value in lstDay" ng-cloak>{{value}}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" ng-class="{ 'has-error' : submitted && form.PhoneNumber.$invalid}">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="col-lg-4 col-sm-4">
+                                        <label>
+                                            <label class="control-label"> Phone *</label>
+                                        </label>
+                                    </div>
+                                    <div class="col-lg-8 col-sm-8">
+                                        <input id="PhoneNumber" name="PhoneNumber" type="text" maxlength="256" class="form-control" ng-required="true" ng-model="model.PhoneNumber" numbers-only placeholder="Mobile Number">
+                                        <p style="color: #a94442" ng-show="submitted && form.PhoneNumber.$invalid" class="help-block">Mobile Number is required.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="col-lg-4 col-sm-4">
+                                </div>
+                                <div class="col-lg-1 col-sm-1">
+                                    <button type="button" class="btn btn-primary" ng-click="CreateMember(form,model)">Save</button>
+                                </div>
+                                <div class="col-lg-1 col-sm-1">
+                                    <button type="button" class="btn" ng-click="Reset()">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<script src="~/app/controllers/Account/CustomerRegistrationCtrl.js"></script>
