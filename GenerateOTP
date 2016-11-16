@@ -1,0 +1,83 @@
+ public JsonResult GenerateOTP(int idUser)
+        {
+            Dictionary<string, object> res = new Dictionary<string, object>();
+            try
+            {
+                using (var db = new bigchoysenEntities())
+                {
+                    string isOTPEnabled = System.Configuration.ConfigurationManager.AppSettings["isOTPEnabled"];
+
+                    if (isOTPEnabled == "1")
+                    {
+                        Random r = new Random();
+                        int TextNumber = Convert.ToInt32(r.Next(0, 1000000).ToString("D6"));
+                        tbluserinformation objUserInfo = db.tbluserinformations.Where(x => x.idUser == idUser).FirstOrDefault();
+
+                        WebClient webclient = new WebClient();
+                        string SmsGateway = System.Configuration.ConfigurationManager.AppSettings["SmsGateway"];
+                        string Name = System.Configuration.ConfigurationManager.AppSettings["UserName"];
+                        string Passwd = System.Configuration.ConfigurationManager.AppSettings["Password"];
+                        string MessageTemplate = System.Configuration.ConfigurationManager.AppSettings["MessageTemplate"];
+                        MessageTemplate = MessageTemplate.Replace("Token", TextNumber.ToString());
+                        string HandphoneNumber = "6" + objUserInfo.HandphoneNumber;
+                        string Url = "http://" + SmsGateway + "/websmsapi/ISendSMS.aspx?username=" + Name + "&password=" + Passwd + "&message=" + MessageTemplate + "&mobile=" + HandphoneNumber + "&sender=Bugz&type=1";
+                        string responseJSON = webclient.DownloadString(Url);
+
+                        if (responseJSON.Substring(0, 4) == "1701")
+                        {
+                            tbltoken objToken = db.tbltokens.Where(x => x.userid == idUser).FirstOrDefault();
+                            if (objToken != null)
+                            {
+                                objToken.token = TextNumber;
+                                objToken.timestamp = DateTime.Now;
+                                db.Entry(objToken).State = System.Data.Entity.EntityState.Modified;
+                                db.SaveChanges();
+                            }
+                            else
+                            {
+                                tbltoken objTkn = new tbltoken();
+                                objTkn.userid = idUser;
+                                objTkn.timestamp = DateTime.Now;
+                                objTkn.token = TextNumber;
+                                db.tbltokens.Add(objTkn);
+                                db.SaveChanges();
+                            }
+                            // check firsttime_logged_in
+
+                            res["success"] = 1;
+                            res["message"] = "One Time Password is Sent to Your Mobile Successfully";
+
+                        }
+                        else if (responseJSON.Substring(0, 4) == "1702")
+                        {
+                            res["error"] = 2;
+                            res["message"] = "Invalid Username Password";
+                        }
+                        else if (responseJSON.Substring(0, 4) == "1703")
+                        {
+                            res["error"] = 2;
+                            res["message"] = "Internal Server Error";
+                        }
+                        else if (responseJSON.Substring(0, 4) == "1705")
+                        {
+                            res["error"] = 2;
+                            res["message"] = "Invalid Mobile Number.Please Contact Administrator";
+                        }
+                    }
+                    ViewBag.idUser = idUser;
+                }
+            }
+            catch (Exception ex)
+            {
+                res["error"] = 2;
+                res["message"] = ex.ToString();
+            }
+            return Json(res, JsonRequestBehavior.AllowGet);
+        }
+        
+        
+    <add key="SmsGateway" value="sms.bugzstudio.com" />
+    <add key="2Factor" value="0" />
+    <add key="MessageTemplate" value="Your One Time Password(OTP) is Token" />
+    <add key="UserName" value="otp" />
+    <add key="Password" value="1234" />
